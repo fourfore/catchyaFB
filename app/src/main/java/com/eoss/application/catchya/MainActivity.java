@@ -39,11 +39,13 @@ public class MainActivity extends AppCompatActivity {
                 if (user != null) {
 
                     Intent myIntent = new Intent(MainActivity.this, AppActivity.class);
+                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     MainActivity.this.startActivity(myIntent);
                     finish();
 
                 } else {
                     Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
+                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     MainActivity.this.startActivity(myIntent);
                     finish();
 

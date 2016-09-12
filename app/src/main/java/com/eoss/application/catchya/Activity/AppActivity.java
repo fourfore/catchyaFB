@@ -167,6 +167,7 @@ public class AppActivity extends AppCompatActivity {
 
                 } else {
                     Intent myIntent = new Intent(AppActivity.this, LoginActivity.class);
+                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     AppActivity.this.startActivity(myIntent);
                     finish();
                 }
