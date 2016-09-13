@@ -46,6 +46,7 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
@@ -75,6 +76,7 @@ public class AppActivity extends AppCompatActivity implements
     //firebase variable
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
 
     // Fragment Variable
     private ProfileFragment profileFragment;
@@ -395,6 +397,10 @@ public class AppActivity extends AppCompatActivity implements
             geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("items_location"));
             geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
 
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference ref = mDatabase.child("location");
+            GeoFire geoFire = new GeoFire(ref);
+            geoFire.setLocation("this place",new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
         } else {
 
             Log.d("lat::>null","long::>null");
