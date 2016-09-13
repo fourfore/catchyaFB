@@ -32,6 +32,8 @@ import com.eoss.application.catchya.R;
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -46,6 +48,7 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
@@ -97,6 +100,8 @@ public class AppActivity extends AppCompatActivity implements
 
 
     GeoFire geoFire;
+    GeoQuery geoQuery;
+    GeoLocation geoLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -390,10 +395,40 @@ public class AppActivity extends AppCompatActivity implements
             mRequestingLocationUpdates = false;
             //setButtonsEnabledState();
             stopLocationUpdates();
-
-            //set in parse user
             geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("items_location"));
-            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
+            geoLocation = new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
+            //set in parse user
+
+           //Save location
+           // geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
+
+            geoQuery = geoFire.queryAtLocation((geoLocation), 1);
+            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                @Override
+                public void onKeyEntered(String key, GeoLocation location) {
+                    Log.d("location-->"+ key, location.toString());
+                }
+
+                @Override
+                public void onKeyExited(String key) {
+
+                }
+
+                @Override
+                public void onKeyMoved(String key, GeoLocation location) {
+
+                }
+
+                @Override
+                public void onGeoQueryReady() {
+
+                }
+
+                @Override
+                public void onGeoQueryError(DatabaseError error) {
+
+                }
+            });
 
         } else {
 
