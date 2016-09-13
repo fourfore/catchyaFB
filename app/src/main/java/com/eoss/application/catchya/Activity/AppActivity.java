@@ -5,9 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +29,9 @@ import com.eoss.application.catchya.Fragment.NearbyFragment;
 import com.eoss.application.catchya.Fragment.ProfileFragment;
 import com.eoss.application.catchya.Fragment.SettingFragment;
 import com.eoss.application.catchya.R;
+import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -47,11 +46,8 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -80,7 +76,6 @@ public class AppActivity extends AppCompatActivity implements
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-
     // Fragment Variable
     private ProfileFragment profileFragment;
     private NearbyFragment nearbyFragment;
@@ -100,6 +95,8 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_settings_white_24dp
     };
 
+
+    GeoFire geoFire;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -395,7 +392,8 @@ public class AppActivity extends AppCompatActivity implements
             stopLocationUpdates();
 
             //set in parse user
-
+            geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("items_location"));
+            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
 
         } else {
 
@@ -424,8 +422,6 @@ public class AppActivity extends AppCompatActivity implements
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         mGoogleApiClient.connect();
-
-
     }
 
     @Override

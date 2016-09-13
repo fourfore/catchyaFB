@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //print hash key facebook
+
         PackageInfo info;
         try {
             info = getPackageManager().getPackageInfo("com.eoss.application.catchya", PackageManager.GET_SIGNATURES);
@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("exception", e.toString());
         }
+
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
