@@ -1,6 +1,7 @@
 package com.eoss.application.catchya.Fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.eoss.application.catchya.Activity.AppActivity;
+import com.eoss.application.catchya.Activity.LoginActivity;
 import com.eoss.application.catchya.R;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,6 +45,9 @@ public class SettingFragment extends Fragment {
             public void onClick(View view) {
                 mAuth.signOut();
                 LoginManager.getInstance().logOut();
+//                Intent myIntent = new Intent(getActivity(), LoginActivity.class);
+//                myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
+//                getActivity().startActivity(myIntent);
             }
         });
     }
