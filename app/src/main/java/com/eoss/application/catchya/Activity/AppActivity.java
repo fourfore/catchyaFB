@@ -402,6 +402,7 @@ public class AppActivity extends AppCompatActivity implements
            //Save location
            // geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
 
+            //Query location
             geoQuery = geoFire.queryAtLocation((geoLocation), 1);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
