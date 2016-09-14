@@ -49,7 +49,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
@@ -99,10 +98,11 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_settings_white_24dp
     };
 
-    DatabaseReference mDatabase;
+
     GeoFire geoFire;
     GeoQuery geoQuery;
     GeoLocation geoLocation;
+    private boolean flag = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,11 +182,6 @@ public class AppActivity extends AppCompatActivity implements
         Log.d("connect","google");
         buildGoogleApiClient();
 
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
 
@@ -234,10 +229,10 @@ public class AppActivity extends AppCompatActivity implements
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
+                if (user != null && flag) {
 
                     Log.d("Name:" + user.getDisplayName(),"ImageUrl:" + user.getPhotoUrl());
-                    mDatabase = FirebaseDatabase.getInstance().getReference();
+                    flag = false;
                 } else {
                     Intent myIntent = new Intent(AppActivity.this, LoginActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -401,10 +396,10 @@ public class AppActivity extends AppCompatActivity implements
             //set in parse user
 
            //Save location
-            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
+           geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
 
             //Query location
-            geoQuery = geoFire.queryAtLocation((geoLocation), 1);
+            geoQuery = geoFire.queryAtLocation((geoLocation), 2);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
@@ -579,6 +574,8 @@ public class AppActivity extends AppCompatActivity implements
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         startLocationUpdates();
+
+                        Log.d("RESULT_OK","RESULT_OK");
                         // All required changes were successfully made
                         //FINALLY YOUR OWN METHOD TO GET YOUR USER LOCATION HERE
 
@@ -586,9 +583,10 @@ public class AppActivity extends AppCompatActivity implements
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
 
-//                        Intent intent = new Intent(this,LoginActivity.class);
-//                        startActivity(intent);
-//                        finish();
+                        Intent myIntent = new Intent(this,LoginActivity.class);
+                        myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(myIntent);
+                        finish();
 
                         break;
                     default:
