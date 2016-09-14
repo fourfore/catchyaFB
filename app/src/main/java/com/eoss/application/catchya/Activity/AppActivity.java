@@ -49,6 +49,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
@@ -98,7 +99,7 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_settings_white_24dp
     };
 
-
+    DatabaseReference mDatabase;
     GeoFire geoFire;
     GeoQuery geoQuery;
     GeoLocation geoLocation;
@@ -236,7 +237,7 @@ public class AppActivity extends AppCompatActivity implements
                 if (user != null) {
 
                     Log.d("Name:" + user.getDisplayName(),"ImageUrl:" + user.getPhotoUrl());
-
+                    mDatabase = FirebaseDatabase.getInstance().getReference();
                 } else {
                     Intent myIntent = new Intent(AppActivity.this, LoginActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -400,7 +401,7 @@ public class AppActivity extends AppCompatActivity implements
             //set in parse user
 
            //Save location
-           // geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
+            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
 
             //Query location
             geoQuery = geoFire.queryAtLocation((geoLocation), 1);

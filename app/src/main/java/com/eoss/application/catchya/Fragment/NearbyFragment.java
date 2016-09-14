@@ -15,6 +15,7 @@ import com.eoss.application.catchya.R;
 public class NearbyFragment extends Fragment {
 
 
+
     public NearbyFragment() {
         // Required empty public constructor
     }
