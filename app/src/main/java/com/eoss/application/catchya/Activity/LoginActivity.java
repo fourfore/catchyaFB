@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.eoss.application.catchya.MainActivity;
 import com.eoss.application.catchya.R;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -25,6 +23,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 
@@ -36,7 +39,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progress;
     private Button btn_fb_login;
     private FirebaseAuth.AuthStateListener mAuthListener;
-
+    private DatabaseReference mDatabase;
+    private boolean flag = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,18 +51,14 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
-                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
-                    LoginActivity.this.startActivity(myIntent);
-                    progress.dismiss();
-                    finish();
+                if (user != null && flag) {
+                        checkUserExits();
+                        flag = false;
                 } else {
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
@@ -95,6 +95,39 @@ public class LoginActivity extends AppCompatActivity {
                 LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email","public_profile", "user_friends"));
             }
         });
+    }
+
+    private void checkUserExits() {
+        final String uid = mAuth.getCurrentUser().getUid().toString();
+        mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(uid)){
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + uid);
+                    Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
+                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
+                    LoginActivity.this.startActivity(myIntent);
+                    progress.dismiss();
+                    finish();
+                }else{
+                    Log.d(TAG, "onAuthStateChanged:Register:" + uid);
+                    mDatabase.child("Users").child(uid).child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
+                    mDatabase.child("Users").child(uid).child("Email").setValue(mAuth.getCurrentUser().getEmail());
+                    progress.dismiss();
+                    Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
+                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
+                    LoginActivity.this.startActivity(myIntent);
+                    progress.dismiss();
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                    Log.d(TAG, "onAuthStateChanged:Error:" + databaseError.getMessage());
+            }
+        });
+
     }
 
     @Override
