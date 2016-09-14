@@ -11,6 +11,7 @@ import com.firebase.client.Firebase;
  * Created by Foremost on 12/9/2559.
  */
 public class CatchYaApp extends Application {
+
     @Override
     public void onCreate(){
         super.onCreate();

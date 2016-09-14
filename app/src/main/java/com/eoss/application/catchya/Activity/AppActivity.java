@@ -17,14 +17,18 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.eoss.application.catchya.Fragment.AddFriendFragment;
 import com.eoss.application.catchya.Fragment.FavFragment;
+import com.eoss.application.catchya.Fragment.NearbyAdapter;
 import com.eoss.application.catchya.Fragment.NearbyFragment;
 import com.eoss.application.catchya.Fragment.ProfileFragment;
 import com.eoss.application.catchya.Fragment.SettingFragment;
@@ -49,6 +53,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
@@ -98,7 +103,7 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_settings_white_24dp
     };
 
-
+    ArrayList<String> locationKey = new ArrayList<>();
     GeoFire geoFire;
     GeoQuery geoQuery;
     GeoLocation geoLocation;
@@ -391,19 +396,23 @@ public class AppActivity extends AppCompatActivity implements
             mRequestingLocationUpdates = false;
             //setButtonsEnabledState();
             stopLocationUpdates();
-            geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("items_location"));
+            geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
             geoLocation = new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
-            //set in parse user
 
            //Save location
            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
-
+            final DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child("Locations").child(mAuth.getCurrentUser().getUid());
+            mRef.child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
+            mRef.child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
             //Query location
+
+
             geoQuery = geoFire.queryAtLocation((geoLocation), 2);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
                     Log.d("location-->"+ key, location.toString());
+                    locationKey.add(key);
                 }
 
                 @Override
@@ -418,7 +427,19 @@ public class AppActivity extends AppCompatActivity implements
 
                 @Override
                 public void onGeoQueryReady() {
+                    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
+                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
+                        @Override
+                        public boolean canScrollVertically() {
+                            return true;
+                        }
+                    };
+                    recyclerView.setLayoutManager(linearLayoutManager);
+                    recyclerView.setHasFixedSize(true);
+                    NearbyAdapter adapter = new NearbyAdapter(AppActivity.this, locationKey);
 
+                    //recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
+                    recyclerView.setAdapter(adapter);
                 }
 
                 @Override

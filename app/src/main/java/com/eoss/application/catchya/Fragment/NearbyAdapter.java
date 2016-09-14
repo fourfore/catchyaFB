@@ -11,24 +11,25 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.eoss.application.catchme_fix4.R;
-import com.parse.DeleteCallback;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseACL;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
+
+import com.eoss.application.catchya.R;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Foremost on 31/8/2559.
  */
 public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyViewHolder> {
-    boolean checkSave;
     public static class NearbyViewHolder extends RecyclerView.ViewHolder {
 
 //        CardView cv;
@@ -36,10 +37,6 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         //TextView gender;
         ImageView photo;
         ToggleButton requestToggle;
-
-
-
-
 
         NearbyViewHolder(View itemView) {
             super(itemView);
@@ -55,14 +52,20 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         }
     }
 
-    List<ParseUser> parseUsers;
-    Context c;
-    AddFriendFragment addFriendFragment;
 
-    NearbyAdapter(List<ParseUser> parseUsers, Context c){
-        this.parseUsers = parseUsers;
+    boolean checkSave;
+    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
+    Context c;
+    ArrayList<String> keys;
+
+
+
+
+    public NearbyAdapter(Context c, ArrayList<String> keys){
+
         this.c = c;
-        this.addFriendFragment = addFriendFragment;
+        this.keys = keys;
     }
 
     @Override
@@ -76,113 +79,65 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         NearbyViewHolder pvh = new NearbyViewHolder(v);
         return pvh;
     }
-
+    DatabaseReference friend;
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
-
-
-        personViewHolder.name.setText(parseUsers.get(position).getString("faceName"));
-        //personViewHolder.gender.setText(parseUsers.get(position).getString("gender"));
-        Picasso.with(c).load(parseUsers.get(position).getString("profilePicUrl")).into(personViewHolder.photo);
-        personViewHolder.requestToggle.setText("Send Request");
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Follow");
-        query.whereEqualTo("from",ParseUser.getCurrentUser());
-        query.whereEqualTo("to",parseUsers.get(position));
-
-        Log.d("TestQuery",parseUsers.get(position).toString());
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> objects, ParseException e) {
-                if(objects.size() != 0) {
-                    if (e == null) {
-                        for (ParseObject o : objects) {
-
-                            if (o.getInt("status") == 0) {
-                                checkSave = true;
-                                personViewHolder.requestToggle.setChecked(true);
-
-                                Log.d("TestQueryStatus", o.get("status").toString());
-
-                            } else {
-                                checkSave = false;
-                                personViewHolder.requestToggle.setChecked(false);
-
-                            }
-
-                        }
-                        //Log.d("score", "Retrieved " + scoreList.size() + " scores");
-                    } else {
-                        Log.d("score", "Error: " + e.getMessage());
-                    }
-                }else {
-                    Log.d("TestQuery", "Object null");
-                }
-            }
-
-        });
-        personViewHolder.requestToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Locations").child(keys.get(position));
+        mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b == true)
-                {
-                    if(checkSave != true) {
-                        ParseObject follow = new ParseObject("Follow");
-                        follow.put("from", ParseUser.getCurrentUser());
-                        follow.put("to", parseUsers.get(position));
-                        follow.put("status", 0);
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        ParseACL acl = new ParseACL();
-                        acl.setPublicReadAccess(true);
-                        acl.setWriteAccess(ParseUser.getCurrentUser(), true);
-                        acl.setWriteAccess(parseUsers.get(position), true);
-                        follow.setACL(acl);
-                        follow.saveInBackground();
-                        checkSave = false;
-                    }
-                    Log.d("Foreb","Request Sent"+parseUsers.get(position).getString("faceName"));
-                    personViewHolder.requestToggle.setTextOn("Request Sent");
-                    Log.d("passtest1","true");
+                personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
+                Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+                personViewHolder.requestToggle.setText("Send Request");
+
+                personViewHolder.requestToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        if(b == true)
+                        {
+                            friend = FirebaseDatabase.getInstance().getReference().child("Friends");
+                            friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position)).setValue("Send");
+                            friend.child(keys.get(position)).child(mAuth.getCurrentUser().getUid()).setValue("Receive");
+
+
+
+
+                            personViewHolder.requestToggle.setTextOn("Request Sent");
+                            Log.d("passtest1","true");
 
 //                    follow.put("from",ParseUser.getCurrentUser());
 //                    follow.put("to", parseUsers.get(position));
-                }
-                else
-                {
-                    Log.d("passtest1","false");
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Follow");
-                    query.whereEqualTo("from",ParseUser.getCurrentUser());
-                    query.whereEqualTo("to",parseUsers.get(position));
-                    query.findInBackground(new FindCallback<ParseObject>() {
-                        public void done(List<ParseObject> objects, ParseException e) {
-                            if (e == null) {
-                                for(ParseObject o : objects)
-                                {
-                                    o.deleteInBackground();
-                                }
-                                //Log.d("score", "Retrieved " + scoreList.size() + " scores");
-                            } else {
-                                Log.d("score", "Error: " + e.getMessage());
-                            }
                         }
-                    });
+                        else
+                        {
+                            Log.d("passtest1","false");
 
-                    Log.d("Foreb","Request "+parseUsers.get(position).getString("faceName"));
-                    personViewHolder.requestToggle.setTextOff("Send Request");
-                }
+
+
+                            personViewHolder.requestToggle.setTextOff("Send Request");
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
-//        personViewHolder.cv.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.d("ForeDebug",parseUsers.get(position).getString("faceName"));
-//            }
-//        });
+        //personViewHolder.name.setText();
+        //personViewHolder.gender.setText(parseUsers.get(position).getString("gender"));
+
+
+
+
 
     }
 
     @Override
-    public int getItemCount() {
-        return parseUsers.size();
+    public int getItemCount() {;
+        return keys.size();
     }
 
 
