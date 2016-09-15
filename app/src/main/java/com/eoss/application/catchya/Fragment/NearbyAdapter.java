@@ -16,6 +16,7 @@ import com.eoss.application.catchya.R;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -55,7 +56,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     }
 
 
-    boolean checkSave;
+
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
     Context c;
@@ -81,7 +82,8 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         NearbyViewHolder pvh = new NearbyViewHolder(v);
         return pvh;
     }
-    DatabaseReference friend;
+    private DatabaseReference friend;
+
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child((new ArrayList<String>(keys.keySet())).get(position));
@@ -119,6 +121,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                             friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                             friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).removeValue();
                             friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).removeValue();
+
                             personViewHolder.requestToggle.setTextOff("Send Request");
                         }
                     }
@@ -129,13 +132,11 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
             public void onCancelled(DatabaseError databaseError) {
 
             }
+
+
         });
         //personViewHolder.name.setText();
         //personViewHolder.gender.setText(parseUsers.get(position).getString("gender"));
-
-
-
-
 
     }
 

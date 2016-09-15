@@ -34,6 +34,7 @@ import com.eoss.application.catchya.Fragment.ProfileFragment;
 import com.eoss.application.catchya.Fragment.SettingFragment;
 import com.eoss.application.catchya.R;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -52,6 +53,7 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -107,20 +109,32 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_person_add_white_24dp,
             R.drawable.ic_settings_white_24dp
     };
-
+    private LinearLayoutManager linearLayoutManager;
     //private ArrayList<String> locationKey = new ArrayList<>();
     //private Map<String,String> locationKeyMap = new HashMap<>();
-    LinkedHashMap<String,String> locationKeyMap = new LinkedHashMap<String,String>();
+    private LinkedHashMap<String,String> locationKeyMap = new LinkedHashMap<String,String>();
     private GeoFire geoFire;
     private GeoQuery geoQuery;
     private GeoLocation geoLocation;
     private boolean flag = true;
     private NearbyAdapter nearbyAdapter;
     private DatabaseReference mFriendDatabase;
+    private DatabaseReference mFriendDatabasePopulate;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+        };
+
+        nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
+
         if (savedInstanceState != null) {
             //Restore your fragment instance
             profileFragment = (ProfileFragment)getSupportFragmentManager().getFragment(
@@ -407,7 +421,6 @@ public class AppActivity extends AppCompatActivity implements
             geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
             geoLocation = new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
             mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
-
             //Save location
             geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
 
@@ -420,45 +433,45 @@ public class AppActivity extends AppCompatActivity implements
                     Log.d("location-->"+ key, location.toString());
                     //location fkey
                     final String fKey = key;
+                    mFriendDatabase.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
+                            if (dataSnapshot.child(fKey).exists()) {
 
-                        mFriendDatabase.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Log.d("dataSnapshot", dataSnapshot.child(fKey).toString());
-                                if (dataSnapshot.child(fKey).exists()) {
-                                    if(dataSnapshot.child(fKey).getValue().equals("Sent")) {
-                                        if(!locationKeyMap.containsKey(fKey)) {
-                                            Log.d("dataSnapshot", "add sender");
+                                    if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") &&!dataSnapshot.child(fKey).getValue().equals("Friend")) {
+                                        if (!locationKeyMap.containsKey(fKey)) {
+                                            Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
                                             //locationKey.add(fKey);
-                                            locationKeyMap.put(fKey,"Send");
-                                            nearbyAdapter.notifyDataSetChanged();
+                                            locationKeyMap.put(fKey, "Send");
+                                            checkAdapter();
                                         }
 
-                                    }
-                                }else if(!dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()){
-                                    if(!locationKeyMap.containsKey(fKey)) {
-                                        Log.d("dataSnapshot", "add not in relation");
-                                        //locationKey.add(fKey);
-                                        locationKeyMap.put(fKey,"Null");
-                                        nearbyAdapter.notifyDataSetChanged();
-                                    }
                                 }
-
+                            }else if(!dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()){
+                                if(!locationKeyMap.containsKey(fKey)) {
+                                    Log.d("dataSnapshot", "add not in relation");
+                                    //locationKey.add(fKey);
+                                    locationKeyMap.put(fKey,"Null");
+                                    checkAdapter();
+                                }
                             }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                        }
 
-                            }
-                        });
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
 
 
                 }
 
                 @Override
                 public void onKeyExited(String key) {
-                    locationKeyMap.remove(key);
-                    nearbyAdapter.notifyDataSetChanged();
+
+
                 }
 
                 @Override
@@ -468,24 +481,67 @@ public class AppActivity extends AppCompatActivity implements
 
                 @Override
                 public void onGeoQueryReady() {
-                    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
-                        @Override
-                        public boolean canScrollVertically() {
-                            return true;
-                        }
-                    };
-                    recyclerView.setLayoutManager(linearLayoutManager);
-                    recyclerView.setHasFixedSize(true);
-                    nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
+                    if(!linearLayoutManager.equals(null)){
+                        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
 
-                    //recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-                    recyclerView.setAdapter(nearbyAdapter);
-                    Log.d("Ready","Fire");
+                        recyclerView.setLayoutManager(linearLayoutManager);
+                        recyclerView.setHasFixedSize(true);
+                        //recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
+                        recyclerView.setAdapter(nearbyAdapter);
+                        Log.d("Ready","Fire");
+                    }
                 }
 
                 @Override
                 public void onGeoQueryError(DatabaseError error) {
+
+                }
+            });
+
+
+            mFriendDatabasePopulate = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+            mFriendDatabasePopulate.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                    if (!locationKeyMap.containsKey(dataSnapshot.getKey()) && !dataSnapshot.getValue().equals("Receive") && !dataSnapshot.getValue().equals("Friend")) {
+                        System.out.println("dataSnapshot add sender" + dataSnapshot.getKey());
+                        locationKeyMap.put(dataSnapshot.getKey(), "Send");
+                        checkAdapter();
+                    }
+
+
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    if(dataSnapshot.getValue().equals("Receive")){
+                        System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
+                        locationKeyMap.remove(dataSnapshot.getKey());
+                        checkAdapter();
+                    }
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        System.out.println("dataSnapshot add onChildRemoved" + dataSnapshot.getKey());
+                        locationKeyMap.remove(dataSnapshot.getKey());
+                        checkAdapter();
+                    }
+
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
                 }
             });
@@ -498,7 +554,11 @@ public class AppActivity extends AppCompatActivity implements
         }
 
     }
-
+    private void checkAdapter(){
+        if(!nearbyAdapter.equals(null)){
+            nearbyAdapter.notifyDataSetChanged();
+        }
+    }
     /**
      * Removes location updates from the FusedLocationApi.
      */

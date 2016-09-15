@@ -79,8 +79,11 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
-                Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+
+                    personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
+                    Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+
+
             }
 
             @Override
