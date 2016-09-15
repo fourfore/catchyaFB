@@ -449,7 +449,8 @@ public class AppActivity extends AppCompatActivity implements
 
                 @Override
                 public void onKeyExited(String key) {
-
+                    locationKey.remove(key);
+                    nearbyAdapter.notifyDataSetChanged();
                 }
 
                 @Override
