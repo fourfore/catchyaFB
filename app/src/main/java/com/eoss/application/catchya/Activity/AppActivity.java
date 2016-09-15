@@ -52,9 +52,11 @@ import com.google.android.gms.location.LocationSettingsStates;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -103,11 +105,13 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_settings_white_24dp
     };
 
-    ArrayList<String> locationKey = new ArrayList<>();
-    GeoFire geoFire;
-    GeoQuery geoQuery;
-    GeoLocation geoLocation;
+    private ArrayList<String> locationKey = new ArrayList<>();
+    private GeoFire geoFire;
+    private GeoQuery geoQuery;
+    private GeoLocation geoLocation;
     private boolean flag = true;
+    private NearbyAdapter nearbyAdapter;
+    private DatabaseReference mFriendDatabase;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -398,9 +402,9 @@ public class AppActivity extends AppCompatActivity implements
             stopLocationUpdates();
             geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
             geoLocation = new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
-
+            mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
            //Save location
-           geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
+            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
             final DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child("Locations").child(mAuth.getCurrentUser().getUid());
             mRef.child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
             mRef.child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
@@ -410,9 +414,33 @@ public class AppActivity extends AppCompatActivity implements
             geoQuery = geoFire.queryAtLocation((geoLocation), 2);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
-                public void onKeyEntered(String key, GeoLocation location) {
+                public void onKeyEntered(final String key, GeoLocation location) {
                     Log.d("location-->"+ key, location.toString());
-                    locationKey.add(key);
+                    final String fKey = key;
+
+                        mFriendDatabase.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Log.d("dataSnapshot", dataSnapshot.child(fKey).toString());
+                                if (dataSnapshot.child(fKey).exists()) {
+                                    if(!dataSnapshot.child(fKey).getValue().equals("Receive")) {
+                                        locationKey.add(fKey);
+                                        nearbyAdapter.notifyDataSetChanged();
+                                    }
+                                }else if(!dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()){
+                                        locationKey.add(fKey);
+                                        nearbyAdapter.notifyDataSetChanged();
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
                 }
 
                 @Override
@@ -436,10 +464,11 @@ public class AppActivity extends AppCompatActivity implements
                     };
                     recyclerView.setLayoutManager(linearLayoutManager);
                     recyclerView.setHasFixedSize(true);
-                    NearbyAdapter adapter = new NearbyAdapter(AppActivity.this, locationKey);
+                    nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKey);
 
                     //recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
-                    recyclerView.setAdapter(adapter);
+                    recyclerView.setAdapter(nearbyAdapter);
+                    Log.d("Ready","Fire");
                 }
 
                 @Override
