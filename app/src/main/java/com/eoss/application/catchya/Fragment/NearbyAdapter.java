@@ -82,7 +82,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     DatabaseReference friend;
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Locations").child(keys.get(position));
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(keys.get(position));
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

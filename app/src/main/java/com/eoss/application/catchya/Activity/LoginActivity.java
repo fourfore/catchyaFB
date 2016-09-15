@@ -113,6 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d(TAG, "onAuthStateChanged:Register:" + uid);
                     mDatabase.child("Users").child(uid).child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
                     mDatabase.child("Users").child(uid).child("Email").setValue(mAuth.getCurrentUser().getEmail());
+                    mDatabase.child("Users").child(uid).child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
                     progress.dismiss();
                     Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -398,19 +398,16 @@ public class AppActivity extends AppCompatActivity implements
 
             Log.d("lat::>" + mCurrentLocation.getLatitude(),"long::>" + mCurrentLocation.getLongitude());
             mRequestingLocationUpdates = false;
-            //setButtonsEnabledState();
             stopLocationUpdates();
             geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
             geoLocation = new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
             mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
-           //Save location
+
+            //Save location
             geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
-            final DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child("Locations").child(mAuth.getCurrentUser().getUid());
-            mRef.child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
-            mRef.child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
+
+
             //Query location
-
-
             geoQuery = geoFire.queryAtLocation((geoLocation), 2);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
@@ -424,12 +421,19 @@ public class AppActivity extends AppCompatActivity implements
                                 Log.d("dataSnapshot", dataSnapshot.child(fKey).toString());
                                 if (dataSnapshot.child(fKey).exists()) {
                                     if(!dataSnapshot.child(fKey).getValue().equals("Receive")) {
+                                        if(!locationKey.contains(fKey)) {
+                                            Log.d("dataSnapshot", "add");
+                                            locationKey.add(fKey);
+                                            nearbyAdapter.notifyDataSetChanged();
+                                        }
+
+                                    }
+                                }else if(!dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()){
+                                    if(!locationKey.contains(fKey)) {
+                                        Log.d("dataSnapshot", "add");
                                         locationKey.add(fKey);
                                         nearbyAdapter.notifyDataSetChanged();
                                     }
-                                }else if(!dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()){
-                                        locationKey.add(fKey);
-                                        nearbyAdapter.notifyDataSetChanged();
                                 }
 
                             }
