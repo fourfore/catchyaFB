@@ -61,7 +61,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AppActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -105,7 +108,9 @@ public class AppActivity extends AppCompatActivity implements
             R.drawable.ic_settings_white_24dp
     };
 
-    private ArrayList<String> locationKey = new ArrayList<>();
+    //private ArrayList<String> locationKey = new ArrayList<>();
+    //private Map<String,String> locationKeyMap = new HashMap<>();
+    LinkedHashMap<String,String> locationKeyMap = new LinkedHashMap<String,String>();
     private GeoFire geoFire;
     private GeoQuery geoQuery;
     private GeoLocation geoLocation;
@@ -413,6 +418,7 @@ public class AppActivity extends AppCompatActivity implements
                 @Override
                 public void onKeyEntered(final String key, GeoLocation location) {
                     Log.d("location-->"+ key, location.toString());
+                    //location fkey
                     final String fKey = key;
 
                         mFriendDatabase.addValueEventListener(new ValueEventListener() {
@@ -420,18 +426,20 @@ public class AppActivity extends AppCompatActivity implements
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Log.d("dataSnapshot", dataSnapshot.child(fKey).toString());
                                 if (dataSnapshot.child(fKey).exists()) {
-                                    if(!dataSnapshot.child(fKey).getValue().equals("Receive")) {
-                                        if(!locationKey.contains(fKey)) {
-                                            Log.d("dataSnapshot", "add");
-                                            locationKey.add(fKey);
+                                    if(dataSnapshot.child(fKey).getValue().equals("Sent")) {
+                                        if(!locationKeyMap.containsKey(fKey)) {
+                                            Log.d("dataSnapshot", "add sender");
+                                            //locationKey.add(fKey);
+                                            locationKeyMap.put(fKey,"Send");
                                             nearbyAdapter.notifyDataSetChanged();
                                         }
 
                                     }
                                 }else if(!dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()){
-                                    if(!locationKey.contains(fKey)) {
-                                        Log.d("dataSnapshot", "add");
-                                        locationKey.add(fKey);
+                                    if(!locationKeyMap.containsKey(fKey)) {
+                                        Log.d("dataSnapshot", "add not in relation");
+                                        //locationKey.add(fKey);
+                                        locationKeyMap.put(fKey,"Null");
                                         nearbyAdapter.notifyDataSetChanged();
                                     }
                                 }
@@ -449,7 +457,7 @@ public class AppActivity extends AppCompatActivity implements
 
                 @Override
                 public void onKeyExited(String key) {
-                    locationKey.remove(key);
+                    locationKeyMap.remove(key);
                     nearbyAdapter.notifyDataSetChanged();
                 }
 
@@ -469,7 +477,7 @@ public class AppActivity extends AppCompatActivity implements
                     };
                     recyclerView.setLayoutManager(linearLayoutManager);
                     recyclerView.setHasFixedSize(true);
-                    nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKey);
+                    nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
 
                     //recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
                     recyclerView.setAdapter(nearbyAdapter);

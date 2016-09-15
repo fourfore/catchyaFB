@@ -24,7 +24,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Foremost on 31/8/2559.
@@ -57,12 +59,12 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
     Context c;
-    ArrayList<String> keys;
+    LinkedHashMap<String, String> keys;
 
 
 
 
-    public NearbyAdapter(Context c, ArrayList<String> keys){
+    public NearbyAdapter(Context c, LinkedHashMap<String, String> keys){
 
         this.c = c;
         this.keys = keys;
@@ -82,7 +84,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     DatabaseReference friend;
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(keys.get(position));
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child((new ArrayList<String>(keys.keySet())).get(position));
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -97,8 +99,8 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                         if(b == true)
                         {
                             friend = FirebaseDatabase.getInstance().getReference().child("Friends");
-                            friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position)).setValue("Send");
-                            friend.child(keys.get(position)).child(mAuth.getCurrentUser().getUid()).setValue("Receive");
+                            friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).setValue("Send");
+                            friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).setValue("Receive");
 
 
 
@@ -114,7 +116,9 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                             Log.d("passtest1","false");
 
 
-
+                            friend = FirebaseDatabase.getInstance().getReference().child("Friends");
+                            friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).removeValue();
+                            friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).removeValue();
                             personViewHolder.requestToggle.setTextOff("Send Request");
                         }
                     }
