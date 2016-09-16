@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.eoss.application.catchya.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,8 +44,8 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
     Context c;
     //LinkedHashMap<String, String> keys;
-    ArrayList<String> keys = new ArrayList<>();
 
+    ArrayList<String> keys = new ArrayList<>();
     public FavAdapter(Context c, ArrayList<String> keys){
 
         this.c = c;
@@ -54,6 +55,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+
     }
 
     @Override
@@ -62,18 +64,22 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         FavViewHolder pvh = new FavViewHolder(v);
         return pvh;
     }
-    DatabaseReference friend;
+    private DatabaseReference friend;
+    private DatabaseReference userRef;
+
     @Override
     public void onBindViewHolder(final FavViewHolder personViewHolder, final int position ) {
 
-
         Log.d("Formost",keys.get(position));
-        DatabaseReference userRef = mDatabase.child("Users").child(keys.get(position));
+
+        userRef = mDatabase.child("Users").child(keys.get(position));
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+
                 personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
                 Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+
             }
 
             @Override
