@@ -512,7 +512,7 @@ public class AppActivity extends AppCompatActivity implements
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                    if(dataSnapshot.getValue().equals("Receive") && dataSnapshot.getValue().equals("Friend") && !locationKeyMap.equals(dataSnapshot.getKey())){
+                    if(dataSnapshot.getValue().equals("Receive") || dataSnapshot.getValue().equals("Friend")){
                         System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
                         locationKeyMap.remove(dataSnapshot.getKey());
                         checkAdapter();

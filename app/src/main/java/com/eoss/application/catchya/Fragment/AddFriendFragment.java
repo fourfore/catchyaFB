@@ -73,7 +73,7 @@ public class AddFriendFragment extends Fragment {
                 for (final DataSnapshot friendSnapshot: dataSnapshot.getChildren()) {
                     friendSnapshot.getValue();
                     Log.d("SnapshotKey",friendSnapshot.getKey().toString());
-                    Log.d("SnapshotValue",friendSnapshot.getValue().toString());
+
                     if(friendSnapshot.getValue().toString().equals("Receive") && !receiveKeys.contains(friendSnapshot.getKey().toString())){
                         receiveKeys.add(friendSnapshot.getKey().toString());
                         adapter.notifyDataSetChanged();
