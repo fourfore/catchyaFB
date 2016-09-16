@@ -85,6 +85,9 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child((new ArrayList<String>(keys.keySet())).get(position));
+        if((new ArrayList<String>(keys.values())).get(position).toString().equals("Send")){
+            Log.d("Foremost-send",(new ArrayList<String>(keys.keySet())).get(position).toString());
+        }
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -92,7 +95,6 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                 personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
                 Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
                 personViewHolder.requestToggle.setText("Send Request");
-
                 personViewHolder.requestToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

@@ -74,6 +74,7 @@ public class FavFragment extends Fragment {
                 };
                 recyclerView.setLayoutManager(linearLayoutManager);
                 recyclerView.setHasFixedSize(true);
+
                 adapter = new FavAdapter(getActivity(), receiveKeys);
                 recyclerView.setAdapter(adapter);
             }

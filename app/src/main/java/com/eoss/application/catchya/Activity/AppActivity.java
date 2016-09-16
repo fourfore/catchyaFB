@@ -426,7 +426,7 @@ public class AppActivity extends AppCompatActivity implements
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Log.d("dataSnapshot", dataSnapshot.child(fKey).toString());
                                 if (dataSnapshot.child(fKey).exists()) {
-                                    if(dataSnapshot.child(fKey).getValue().equals("Sent")) {
+                                    if(dataSnapshot.child(fKey).getValue().equals("Send")) {
                                         if(!locationKeyMap.containsKey(fKey)) {
                                             Log.d("dataSnapshot", "add sender");
                                             //locationKey.add(fKey);
@@ -493,7 +493,21 @@ public class AppActivity extends AppCompatActivity implements
         } else {
 
             Log.d("lat::>null","long::>null");
+            DatabaseReference friendRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users");
+            userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
+                        Log.d("AllUserkey",userSnapshot.getKey().toString());
+                    }
+                }
 
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
 
         }
 
