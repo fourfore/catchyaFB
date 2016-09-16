@@ -127,5 +127,9 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
         return keys.size();
     }
 
+    public void clear(){
+        keys.clear();
+        notifyDataSetChanged();
+    }
 
 }

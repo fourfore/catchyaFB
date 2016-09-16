@@ -95,5 +95,10 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         return keys.size();
     }
 
+    public void clear(){
+        keys.clear();
+        notifyDataSetChanged();
+    }
+
 
 }
