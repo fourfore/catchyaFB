@@ -56,6 +56,10 @@ public class AddFriendFragment extends Fragment {
         myFriendRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                receiveKeys.clear();
+                if(adapter != null) {
+                    adapter.clear();
+                }
                 for (final DataSnapshot friendSnapshot: dataSnapshot.getChildren()) {
                     friendSnapshot.getValue();
                     Log.d("SnapshotKey",friendSnapshot.getKey().toString());

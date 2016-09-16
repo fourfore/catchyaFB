@@ -83,12 +83,14 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         return pvh;
     }
     private DatabaseReference friend;
-
+    boolean checkSave = false;
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child((new ArrayList<String>(keys.keySet())).get(position));
         if((new ArrayList<String>(keys.values())).get(position).toString().equals("Send")){
             Log.d("Foremost-send",(new ArrayList<String>(keys.keySet())).get(position).toString());
+            personViewHolder.requestToggle.setChecked(true);
+            checkSave = true;
         }
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -100,7 +102,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                 personViewHolder.requestToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                        if(b == true)
+                        if(b == true && checkSave != true)
                         {
                             friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                             friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).setValue("Send");
@@ -111,6 +113,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
 
                             personViewHolder.requestToggle.setTextOn("Request Sent");
                             Log.d("passtest1","true");
+                            checkSave = false;
 
 //                    follow.put("from",ParseUser.getCurrentUser());
 //                    follow.put("to", parseUsers.get(position));
@@ -123,7 +126,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                             friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                             friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).removeValue();
                             friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).removeValue();
-
+                            checkSave = false;
                             personViewHolder.requestToggle.setTextOff("Send Request");
                         }
                     }
@@ -145,6 +148,11 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     @Override
     public int getItemCount() {;
         return keys.size();
+    }
+
+    public void remove(){
+        keys.clear();
+        notifyDataSetChanged();
     }
 
 
