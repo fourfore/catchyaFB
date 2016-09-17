@@ -51,6 +51,7 @@ public class AddFriendFragment extends Fragment {
         super.onStart();
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.keepSynced(true);
         mAuth = FirebaseAuth.getInstance();
         //final LinkedHashMap<String,String> ResultsMap = new LinkedHashMap<String,String>();
         final ArrayList<String> receiveKeys = new ArrayList<>();
@@ -67,6 +68,7 @@ public class AddFriendFragment extends Fragment {
         adapter = new AddFriendAdapter(getActivity(), receiveKeys);
         recyclerView.setAdapter(adapter);
         DatabaseReference myFriendRef = mDatabase.child("Friends").child(mAuth.getCurrentUser().getUid());
+        myFriendRef.keepSynced(true);
         myFriendRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -95,6 +97,7 @@ public class AddFriendFragment extends Fragment {
         });
 
         DatabaseReference myFriendPopulate = mDatabase.child("Friends").child(mAuth.getCurrentUser().getUid());
+        myFriendPopulate.keepSynced(true);
         myFriendPopulate.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {

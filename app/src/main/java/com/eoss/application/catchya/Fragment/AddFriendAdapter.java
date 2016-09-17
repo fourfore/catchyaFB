@@ -74,8 +74,9 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
 
         personViewHolder.acceptButton.setText("Accept");
         personViewHolder.rejectButton.setText("Decline");
-        Log.d("Formost",keys.get(position));
+
         DatabaseReference userRef = mDatabase.child("Users").child(keys.get(position));
+        userRef.keepSynced(true);
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -95,6 +96,7 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
         personViewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Log.d("tttt","111111");
                 DatabaseReference friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                 friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position).toString()).setValue("Friend");
@@ -102,13 +104,13 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
                 keys.remove(position);
                 notifyDataSetChanged();
 
-
             }
         });
 
         personViewHolder.rejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Log.d("tttt","22222");
                 DatabaseReference friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                 friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position).toString()).removeValue();

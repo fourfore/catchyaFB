@@ -2,6 +2,7 @@ package com.eoss.application.catchya.Activity;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
@@ -112,7 +113,7 @@ public class AppActivity extends AppCompatActivity implements
     private LinearLayoutManager linearLayoutManager;
     //private ArrayList<String> locationKey = new ArrayList<>();
     //private Map<String,String> locationKeyMap = new HashMap<>();
-    private LinkedHashMap<String,String> locationKeyMap = new LinkedHashMap<String,String>();
+    private LinkedHashMap<String, String> locationKeyMap = new LinkedHashMap<String, String>();
     private GeoFire geoFire;
     private GeoQuery geoQuery;
     private GeoLocation geoLocation;
@@ -121,9 +122,19 @@ public class AppActivity extends AppCompatActivity implements
     private DatabaseReference mFriendDatabase;
     private DatabaseReference mFriendDatabasePopulate;
     private RecyclerView recyclerView;
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Loading");
+        progressDialog.setMessage("Loading nearby user ...");
+        progressDialog.show();
+
+
+        mAuth = FirebaseAuth.getInstance();
 
         linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
             @Override
@@ -134,27 +145,27 @@ public class AppActivity extends AppCompatActivity implements
 
         nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
 
-
         if (savedInstanceState != null) {
             //Restore your fragment instance
-            profileFragment = (ProfileFragment)getSupportFragmentManager().getFragment(
+            profileFragment = (ProfileFragment) getSupportFragmentManager().getFragment(
                     savedInstanceState, "fragmentProfile");
-            nearbyFragment = (NearbyFragment)getSupportFragmentManager().getFragment(
+            nearbyFragment = (NearbyFragment) getSupportFragmentManager().getFragment(
                     savedInstanceState, "fragmentNearby");
-            favFragment = (FavFragment)getSupportFragmentManager().getFragment(
+            favFragment = (FavFragment) getSupportFragmentManager().getFragment(
                     savedInstanceState, "fragmentFav");
-            addFriendFragment = (AddFriendFragment)getSupportFragmentManager().getFragment(
+            addFriendFragment = (AddFriendFragment) getSupportFragmentManager().getFragment(
                     savedInstanceState, "fragmentAddFriend");
-            settingFragment = (SettingFragment)getSupportFragmentManager().getFragment(
+            settingFragment = (SettingFragment) getSupportFragmentManager().getFragment(
                     savedInstanceState, "fragmentSetting");
 
-        }
-        else {
+        } else {
+
             profileFragment = new ProfileFragment();
             nearbyFragment = new NearbyFragment();
             favFragment = new FavFragment();
             settingFragment = new SettingFragment();
             addFriendFragment = new AddFriendFragment();
+
         }
         setContentView(R.layout.activity_app);
 
@@ -175,16 +186,16 @@ public class AppActivity extends AppCompatActivity implements
 
             @Override
             public void onPageSelected(int position) {
-                Log.d("check5",position+"");
-                if(position == 0)
+                Log.d("check5", position + "");
+                if (position == 0)
                     toolbar.setTitle("Profile");
-                else if(position == 1)
+                else if (position == 1)
                     toolbar.setTitle("Nearby");
-                else if(position == 2)
+                else if (position == 2)
                     toolbar.setTitle("Favorite");
-                else if(position == 3)
+                else if (position == 3)
                     toolbar.setTitle("Add Friends");
-                else if(position == 4)
+                else if (position == 4)
                     toolbar.setTitle("Setting");
             }
 
@@ -200,15 +211,15 @@ public class AppActivity extends AppCompatActivity implements
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         viewPager.setCurrentItem(1);
+
         //toolbar.setTitle("Nearby");
         setupTabIcons();
-        afterLogin();
 
         //Google Location initial
         mStartUpdatesButton = (Button) findViewById(R.id.button);
         mRequestingLocationUpdates = false;
         mLastUpdateTime = "";
-        Log.d("connect","google");
+        Log.d("connect", "google");
         buildGoogleApiClient();
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -249,24 +260,26 @@ public class AppActivity extends AppCompatActivity implements
             }
         });
 
-    }
-
-    public void afterLogin()
-    {
-        mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && flag) {
 
-                    Log.d("Name:" + user.getDisplayName(),"ImageUrl:" + user.getPhotoUrl());
+                    recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
+                    recyclerView.setLayoutManager(linearLayoutManager);
+                    recyclerView.setHasFixedSize(true);
+                    recyclerView.setAdapter(nearbyAdapter);
+
+                    Log.d("Name:" + user.getDisplayName(), "ImageUrl:" + user.getPhotoUrl());
                     flag = false;
                 } else {
+                    progressDialog.dismiss();
                     Intent myIntent = new Intent(AppActivity.this, LoginActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     AppActivity.this.startActivity(myIntent);
                     finish();
+
                 }
 
             }
@@ -321,7 +334,6 @@ public class AppActivity extends AppCompatActivity implements
             return null;
         }
     }
-
 
 
     /**
@@ -379,6 +391,7 @@ public class AppActivity extends AppCompatActivity implements
             startLocationUpdates();
         }
     }
+
     /**
      * Handles the Stop Updates button, and requests removal of location updates. Does nothing if
      * updates were not previously requested.
@@ -406,8 +419,6 @@ public class AppActivity extends AppCompatActivity implements
     }
 
 
-
-
     /**
      * Updates the latitude, the longitude, and the last location time in the UI.
      */
@@ -416,14 +427,16 @@ public class AppActivity extends AppCompatActivity implements
         if (mCurrentLocation != null) {
 
 
-            Log.d("lat::>" + mCurrentLocation.getLatitude(),"long::>" + mCurrentLocation.getLongitude());
+            Log.d("lat::>" + mCurrentLocation.getLatitude(), "long::>" + mCurrentLocation.getLongitude());
             mRequestingLocationUpdates = true;
             //stopLocationUpdates();
             geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
-            geoLocation = new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
+            geoLocation = new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
             mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+            mFriendDatabase.keepSynced(true);
+
             //Save location
-            geoFire.setLocation(mAuth.getCurrentUser().getUid(),new GeoLocation(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude()));
+            geoFire.setLocation(mAuth.getCurrentUser().getUid(), new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
 
 
             //Query location
@@ -431,16 +444,17 @@ public class AppActivity extends AppCompatActivity implements
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(final String key, GeoLocation location) {
-                    Log.d("location-->"+ key, location.toString());
+
                     //location fkey
                     final String fKey = key;
-                    if(fKey != mAuth.getCurrentUser().getUid()) {
+                    if (fKey != mAuth.getCurrentUser().getUid()) {
                         mFriendDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+                                Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
 
                                 if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
-                                    Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
+                                    Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
                                     if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
                                         if (!locationKeyMap.containsKey(fKey)) {
                                             Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
@@ -449,18 +463,17 @@ public class AppActivity extends AppCompatActivity implements
                                             checkAdapter();
                                         }
 
-                                    }else if(dataSnapshot.child(fKey).getValue().equals("Receive")){
+                                    } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
                                         locationKeyMap.remove(fKey);
                                         checkAdapter();
                                     }
                                 } else if (!dataSnapshot.child(fKey).exists()) {
                                     if (!locationKeyMap.containsKey(fKey)) {
 
-                                            Log.d("dataSnapshot", "add not in relation");
-                                            //locationKey.add(fKey);
-                                            locationKeyMap.put(fKey, "Null");
-                                            checkAdapter();
-
+                                        Log.d("dataSnapshot", "add not in relation");
+                                        //locationKey.add(fKey);
+                                        locationKeyMap.put(fKey, "Null");
+                                        checkAdapter();
 
                                     }
                                 }
@@ -480,7 +493,7 @@ public class AppActivity extends AppCompatActivity implements
                 public void onKeyExited(String key) {
                     locationKeyMap.remove(key);
                     checkAdapter();
-                    Log.d("Ready","onKeyExited" + key);
+                    Log.d("Ready", "onKeyExited" + key);
                 }
 
                 @Override
@@ -490,8 +503,8 @@ public class AppActivity extends AppCompatActivity implements
 
                 @Override
                 public void onGeoQueryReady() {
-
-                        Log.d("Ready","Fire");
+                    progressDialog.dismiss();
+                    Log.d("Ready", "Fire");
 
                 }
 
@@ -503,7 +516,9 @@ public class AppActivity extends AppCompatActivity implements
 
 
             mFriendDatabasePopulate = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+            mFriendDatabasePopulate.keepSynced(true);
             mFriendDatabasePopulate.addChildEventListener(new ChildEventListener() {
+
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -512,7 +527,7 @@ public class AppActivity extends AppCompatActivity implements
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                    if(dataSnapshot.getValue().equals("Receive") || dataSnapshot.getValue().equals("Friend")){
+                    if (dataSnapshot.getValue().equals("Receive") || dataSnapshot.getValue().equals("Friend")) {
                         System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
                         locationKeyMap.remove(dataSnapshot.getKey());
                         checkAdapter();
@@ -522,12 +537,10 @@ public class AppActivity extends AppCompatActivity implements
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
-                        System.out.println("dataSnapshot add onChildRemoved" + dataSnapshot.getKey());
-                        locationKeyMap.remove(dataSnapshot.getKey());
-                        checkAdapter();
-                    }
+                    System.out.println("dataSnapshot add onChildRemoved " + dataSnapshot.getKey());
+                    locationKeyMap.put(dataSnapshot.getKey(), "Null");
 
+                    checkAdapter();
 
                 }
 
@@ -543,27 +556,29 @@ public class AppActivity extends AppCompatActivity implements
             });
 
         } else {
-
-            Log.d("lat::>null","long::>null");
+            progressDialog.dismiss();
+            Log.d("lat::>null", "long::>null");
 
 
         }
 
     }
-    private void checkAdapter(){
 
-        recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(nearbyAdapter);
+    private void checkAdapter() {
+        if (recyclerView != null) {
+            recyclerView.setAdapter(nearbyAdapter);
+            locationKeyMap.remove(mAuth.getCurrentUser().getUid());
+            nearbyAdapter.notifyDataSetChanged();
+        }
 
-        if (!recyclerView.equals(null)) {
-            if (!nearbyAdapter.equals(null)) {
-                locationKeyMap.remove(mAuth.getCurrentUser().getUid());
-                nearbyAdapter.notifyDataSetChanged();
-            }
+        else {
+            recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
+            recyclerView.setLayoutManager(linearLayoutManager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setAdapter(nearbyAdapter);
         }
     }
+
     /**
      * Removes location updates from the FusedLocationApi.
      */
@@ -594,6 +609,11 @@ public class AppActivity extends AppCompatActivity implements
         if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
             startLocationUpdates();
         }
+
+        if (mAuthListener == null) {
+            mAuth.addAuthStateListener(mAuthListener);
+        }
+
     }
 
     @Override
@@ -602,6 +622,10 @@ public class AppActivity extends AppCompatActivity implements
         // Stop location updates to save battery, but don't disconnect the GoogleApiClient object.
         if (mGoogleApiClient.isConnected()) {
             stopLocationUpdates();
+        }
+
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
         }
     }
 
@@ -655,8 +679,7 @@ public class AppActivity extends AppCompatActivity implements
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         updateUI();
-        Toast.makeText(this, getResources().getString(R.string.location_updated_message),
-                Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -724,5 +747,3 @@ public class AppActivity extends AppCompatActivity implements
         }
     }
 }
-
-

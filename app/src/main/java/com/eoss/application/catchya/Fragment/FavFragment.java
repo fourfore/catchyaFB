@@ -50,6 +50,7 @@ public class FavFragment extends Fragment {
     public void onStart(){
         super.onStart();
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.keepSynced(true);
         mAuth = FirebaseAuth.getInstance();
         //final LinkedHashMap<String,String> ResultsMap = new LinkedHashMap<String,String>();
         final ArrayList<String> receiveKeys = new ArrayList<>();
@@ -92,6 +93,7 @@ public class FavFragment extends Fragment {
         });
 
         DatabaseReference myFriendPopulate  = mDatabase.child("Friends").child(mAuth.getCurrentUser().getUid());
+        myFriendPopulate.keepSynced(true);
         myFriendPopulate.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {

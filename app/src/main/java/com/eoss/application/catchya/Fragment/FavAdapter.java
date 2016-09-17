@@ -73,6 +73,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         Log.d("Formost",keys.get(position));
 
         userRef = mDatabase.child("Users").child(keys.get(position));
+        userRef.keepSynced(true);
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
