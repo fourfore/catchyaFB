@@ -576,6 +576,7 @@ public class AppActivity extends AppCompatActivity implements
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setHasFixedSize(true);
             recyclerView.setAdapter(nearbyAdapter);
+            nearbyAdapter.notifyDataSetChanged();
         }
     }
 
