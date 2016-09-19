@@ -78,11 +78,12 @@ public class ChatActivity extends AppCompatActivity {
                 }else{
 
                     Log.d("ChatAct","null");
+
                     mChatRoom = mChatRoom.push();
+
                     String mChatRoomId = mChatRoom.getKey().toString();
                     mMessageAdapterUid.child(idFriend).child("ChatRoomId").setValue(mChatRoomId);
                     mMessageAdapterUid.child(idFriend).child("Unread").setValue(0);
-
                     mMessageAdapterFid.child(uid).child("ChatRoomId").setValue(mChatRoomId);
                     mMessageAdapterFid.child(uid).child("Unread").setValue(0);
 
@@ -123,7 +124,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(!textChat.getText().toString().equals("")) {
                     String Text = textChat.getText().toString().trim();
-                    DatabaseReference mChatRoomSave = mChatRoom.child(ChatRoomId).child("Message").push();
+                    DatabaseReference mChatRoomSave = mDatabase.child("ChatRoom").child(ChatRoomId).child("Message").push();
                     mChatRoomSave.child("Text").setValue(Text);
                     mChatRoomSave.child("Sender").setValue(uid);
                     Log.d("ChatAct ChatRoomPop","save" + ChatRoomId);
