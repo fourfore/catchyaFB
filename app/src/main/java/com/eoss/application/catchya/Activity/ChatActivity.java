@@ -58,7 +58,7 @@ public class ChatActivity extends AppCompatActivity {
         idFriend = intent.getStringExtra("user_id");
         uid = mAuth.getCurrentUser().getUid().toString();
 
-
+        Log.d("ChatAct",idFriend);
         mMessageAdapterUid = mDatabase.child("MessageAdapter").child(uid);
         mMessageAdapterUid.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
