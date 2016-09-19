@@ -45,6 +45,9 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
         }
     }
 
+    private DatabaseReference mMessageAdapterUid;
+    private DatabaseReference mMessageAdapterFid;
+    private DatabaseReference mChatRoom;
     private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
     Context c;
@@ -97,13 +100,30 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
             @Override
             public void onClick(View v) {
 
+                mMessageAdapterUid = mDatabase.child("MessageAdapter").child(mAuth.getCurrentUser().getUid());
+                mMessageAdapterFid = mDatabase.child("MessageAdapter").child(keys.get(position).toString());
+                mChatRoom = mDatabase.child("ChatRoom");
+
                 Log.d("tttt","111111");
                 DatabaseReference friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                 friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position).toString()).setValue("Friend");
                 friend.child(keys.get(position).toString()).child(mAuth.getCurrentUser().getUid()).setValue("Friend");
+
+
+
+                mChatRoom = mChatRoom.push();
+                mChatRoom.child("Users").child(keys.get(position).toString()).setValue(true);
+                mChatRoom.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(true);
+
+                String mChatRoomId = mChatRoom.getKey().toString();
+
+                mMessageAdapterUid.child(keys.get(position).toString()).child("ChatRoomId").setValue(mChatRoomId);
+                mMessageAdapterUid.child(keys.get(position).toString()).child("Unread").setValue(0);
+                mMessageAdapterFid.child(mAuth.getCurrentUser().getUid()).child("ChatRoomId").setValue(mChatRoomId);
+                mMessageAdapterFid.child(mAuth.getCurrentUser().getUid()).child("Unread").setValue(0);
+
                 keys.remove(position);
                 notifyDataSetChanged();
-
             }
         });
 

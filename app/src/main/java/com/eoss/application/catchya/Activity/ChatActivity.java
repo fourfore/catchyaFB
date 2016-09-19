@@ -31,8 +31,6 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView ;
     private ChatAdapter adapter;
     private DatabaseReference mMessageAdapterUid;
-    private DatabaseReference mMessageAdapterFid;
-    private DatabaseReference mChatRoom;
     private DatabaseReference mChatRoomPopulate;
     private Button sentChat;
     private EditText textChat;
@@ -60,41 +58,17 @@ public class ChatActivity extends AppCompatActivity {
         idFriend = intent.getStringExtra("user_id");
         uid = mAuth.getCurrentUser().getUid().toString();
 
+
         mMessageAdapterUid = mDatabase.child("MessageAdapter").child(uid);
-        mMessageAdapterFid = mDatabase.child("MessageAdapter").child(idFriend);
-
-        mChatRoom = mDatabase.child("ChatRoom");
-
         mMessageAdapterUid.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("ChatAct","onDataChange");
                 if(dataSnapshot.hasChild(idFriend)) {
-
                     Log.d("ChatAct","not null");
                     setOnClick(dataSnapshot.child(idFriend).child("ChatRoomId").getValue().toString());
-
-
                 }else{
-
                     Log.d("ChatAct","null");
-
-                    mChatRoom = mChatRoom.push();
-
-                    String mChatRoomId = mChatRoom.getKey().toString();
-                    mMessageAdapterUid.child(idFriend).child("ChatRoomId").setValue(mChatRoomId);
-                    mMessageAdapterUid.child(idFriend).child("Unread").setValue(0);
-                    mMessageAdapterFid.child(uid).child("ChatRoomId").setValue(mChatRoomId);
-                    mMessageAdapterFid.child(uid).child("Unread").setValue(0);
-
-
-
-                    mChatRoom.child("Users").child(idFriend).setValue(true);
-                    mChatRoom.child("Users").child(uid).setValue(true);
-
-
-
-                    setOnClick(mChatRoomId);
                 }
             }
 
