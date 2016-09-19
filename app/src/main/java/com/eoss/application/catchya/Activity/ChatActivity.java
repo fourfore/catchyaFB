@@ -109,8 +109,8 @@ public class ChatActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    protected void setOnClick(String ChatRoomId){
-        final String ChatRoom = ChatRoomId;
+    protected void setOnClick(final String ChatRoomId){
+
         mChatRoomPopulate = mDatabase.child("ChatRoom").child(ChatRoomId).child("Message");
 
         sentChat = (Button)findViewById(R.id.sent_chat);
@@ -120,7 +120,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(!textChat.getText().toString().equals("")) {
                     String Text = textChat.getText().toString().trim();
-                    DatabaseReference mChatRoomSave = mChatRoom.child(ChatRoom).child("Message").push();
+                    DatabaseReference mChatRoomSave = mChatRoom.child(ChatRoomId).child("Message").push();
                     mChatRoomSave.child("Text").setValue(Text);
                     mChatRoomSave.child("Sender").setValue(uid);
                     Log.d("ChatAct ChatRoomPop","save");
