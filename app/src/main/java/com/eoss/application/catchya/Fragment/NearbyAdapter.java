@@ -56,7 +56,6 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
     }
 
 
-
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
     Context c;
@@ -66,9 +65,10 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
 
 
     public NearbyAdapter(Context c, LinkedHashMap<String, String> keys){
-
         this.c = c;
         this.keys = keys;
+        this.keys.clear();
+
     }
 
     @Override
@@ -83,15 +83,12 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         return pvh;
     }
     private DatabaseReference friend;
-    boolean checkSave = false;
     @Override
     public void onBindViewHolder(final NearbyViewHolder personViewHolder, final int position ) {
+
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child((new ArrayList<String>(keys.keySet())).get(position));
         mDatabase.keepSynced(true);
-        if((new ArrayList<String>(keys.values())).get(position).toString().equals("Send")){
-            Log.d("Foremost-send",(new ArrayList<String>(keys.keySet())).get(position).toString());
-            personViewHolder.requestToggle.setChecked(true);
-        }
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -101,9 +98,12 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                 personViewHolder.requestToggle.setText("Send Request");
 
                 if((new ArrayList<String>(keys.values())).get(position).toString().equals("Send")){
-                    Log.d("Foremost-send",(new ArrayList<String>(keys.keySet())).get(position).toString());
                     personViewHolder.requestToggle.setChecked(true);
+                }else {
+                    personViewHolder.requestToggle.setChecked(false);
                 }
+
+                Log.d("DataChange" + keys.values(),(new ArrayList<String>(keys.values())).get(position).toString());
 
                 personViewHolder.requestToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -115,8 +115,6 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                             friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).setValue("Receive");
                             personViewHolder.requestToggle.setTextOn("Request Sent");
                             keys.put((new ArrayList<String>(keys.keySet())).get(position),"Send");
-                            Log.d("Check","true "+ (new ArrayList<String>(keys.keySet())).get(position));
-                            notifyDataSetChanged();
                         }
                         else
                         {
@@ -126,8 +124,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
                             friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).removeValue();
                             friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).removeValue();
                             personViewHolder.requestToggle.setTextOff("Send Request");
-                            Log.d("Check","false "+ (new ArrayList<String>(keys.keySet())).get(position));
-
+                            keys.put((new ArrayList<String>(keys.keySet())).get(position),"Null");
                         }
                     }
                 });
@@ -154,6 +151,5 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
         keys.clear();
         notifyDataSetChanged();
     }
-
 
 }

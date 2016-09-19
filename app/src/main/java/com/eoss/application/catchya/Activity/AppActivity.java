@@ -20,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -135,15 +136,6 @@ public class AppActivity extends AppCompatActivity implements
 
 
         mAuth = FirebaseAuth.getInstance();
-
-        linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
-            @Override
-            public boolean canScrollVertically() {
-                return true;
-            }
-        };
-
-        nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
 
         if (savedInstanceState != null) {
             //Restore your fragment instance
@@ -266,9 +258,19 @@ public class AppActivity extends AppCompatActivity implements
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && flag) {
 
+                    nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
+
+                    linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
+                        @Override
+                        public boolean canScrollVertically() {
+                            return true;
+                        }
+                    };
+
                     recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
                     recyclerView.setLayoutManager(linearLayoutManager);
                     recyclerView.setHasFixedSize(true);
+                    recyclerView.setItemAnimator(null);
                     recyclerView.setAdapter(nearbyAdapter);
 
                     Log.d("Name:" + user.getDisplayName(), "ImageUrl:" + user.getPhotoUrl());
@@ -531,7 +533,12 @@ public class AppActivity extends AppCompatActivity implements
                         System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
                         locationKeyMap.remove(dataSnapshot.getKey());
                         checkAdapter();
+                    }else if(dataSnapshot.getValue().equals("Send")){
+                        System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
+                        locationKeyMap.put(dataSnapshot.getKey(),"Send");
+                        checkAdapter();
                     }
+
 
                 }
 
@@ -539,7 +546,6 @@ public class AppActivity extends AppCompatActivity implements
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     System.out.println("dataSnapshot add onChildRemoved " + dataSnapshot.getKey());
                     locationKeyMap.put(dataSnapshot.getKey(), "Null");
-
                     checkAdapter();
 
                 }
@@ -556,6 +562,7 @@ public class AppActivity extends AppCompatActivity implements
             });
 
         } else {
+
             progressDialog.dismiss();
             Log.d("lat::>null", "long::>null");
 
@@ -566,12 +573,15 @@ public class AppActivity extends AppCompatActivity implements
 
     private void checkAdapter() {
         if (recyclerView != null) {
-            recyclerView.setAdapter(nearbyAdapter);
+
+
             locationKeyMap.remove(mAuth.getCurrentUser().getUid());
             nearbyAdapter.notifyDataSetChanged();
+
         }
 
         else {
+
             recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setHasFixedSize(true);
