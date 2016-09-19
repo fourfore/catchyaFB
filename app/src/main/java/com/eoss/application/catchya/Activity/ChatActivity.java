@@ -79,16 +79,19 @@ public class ChatActivity extends AppCompatActivity {
 
                     Log.d("ChatAct","null");
                     mChatRoom = mChatRoom.push();
-                    mChatRoom.child("Users").child(idFriend).setValue(true);
-                    mChatRoom.child("Users").child(uid).setValue(true);
-
                     String mChatRoomId = mChatRoom.getKey().toString();
-
                     mMessageAdapterUid.child(idFriend).child("ChatRoomId").setValue(mChatRoomId);
                     mMessageAdapterUid.child(idFriend).child("Unread").setValue(0);
 
                     mMessageAdapterFid.child(uid).child("ChatRoomId").setValue(mChatRoomId);
                     mMessageAdapterFid.child(uid).child("Unread").setValue(0);
+
+
+
+                    mChatRoom.child("Users").child(idFriend).setValue(true);
+                    mChatRoom.child("Users").child(uid).setValue(true);
+
+
 
                     setOnClick(mChatRoomId);
                 }
@@ -123,7 +126,7 @@ public class ChatActivity extends AppCompatActivity {
                     DatabaseReference mChatRoomSave = mChatRoom.child(ChatRoomId).child("Message").push();
                     mChatRoomSave.child("Text").setValue(Text);
                     mChatRoomSave.child("Sender").setValue(uid);
-                    Log.d("ChatAct ChatRoomPop","save");
+                    Log.d("ChatAct ChatRoomPop","save" + ChatRoomId);
                 }
             }
         });
