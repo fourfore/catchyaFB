@@ -1,6 +1,7 @@
 package com.eoss.application.catchya.Fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.eoss.application.catchya.Activity.ChatActivity;
 import com.eoss.application.catchya.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -32,11 +34,13 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
         TextView name;
         ImageView photo;
+        Button goChat;
 
         FavViewHolder(View itemView) {
             super(itemView);
             name = (TextView)itemView.findViewById(R.id.fav_list_name);
             photo = (ImageView) itemView.findViewById(R.id.fav_person_photo);
+            goChat = (Button) itemView.findViewById(R.id.fav_chat_button);
         }
     }
 
@@ -85,6 +89,17 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        personViewHolder.goChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(c, ChatActivity.class);
+                intent.putExtra("user_id",keys.get(position));
+                Log.d("user_id=> ",keys.get(position));
+                c.startActivity(intent);
 
             }
         });
