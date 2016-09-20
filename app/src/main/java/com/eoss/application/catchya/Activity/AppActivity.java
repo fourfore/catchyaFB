@@ -34,6 +34,7 @@ import com.eoss.application.catchya.Fragment.NearbyAdapter;
 import com.eoss.application.catchya.Fragment.NearbyFragment;
 import com.eoss.application.catchya.Fragment.ProfileFragment;
 import com.eoss.application.catchya.Fragment.SettingFragment;
+import com.eoss.application.catchya.MainActivity;
 import com.eoss.application.catchya.R;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -128,6 +129,17 @@ public class AppActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
+
+        linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
+            @Override
+            public boolean canScrollVertically() {
+                return true;
+            }
+        };
+
+
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
@@ -258,15 +270,6 @@ public class AppActivity extends AppCompatActivity implements
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && flag) {
 
-                    nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
-
-                    linearLayoutManager = new LinearLayoutManager(AppActivity.this) {
-                        @Override
-                        public boolean canScrollVertically() {
-                            return true;
-                        }
-                    };
-
                     recyclerView = (RecyclerView) findViewById(R.id.nearby_RecyclerView);
                     recyclerView.setLayoutManager(linearLayoutManager);
                     recyclerView.setHasFixedSize(true);
@@ -277,7 +280,7 @@ public class AppActivity extends AppCompatActivity implements
                     flag = false;
                 } else {
                     progressDialog.dismiss();
-                    Intent myIntent = new Intent(AppActivity.this, LoginActivity.class);
+                    Intent myIntent = new Intent(AppActivity.this, MainActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     AppActivity.this.startActivity(myIntent);
                     finish();
