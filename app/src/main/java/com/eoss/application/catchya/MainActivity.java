@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+
                     progressDialog.dismiss();
                     Intent myIntent = new Intent(MainActivity.this, AppActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                     finish();
 
                 } else {
+
                     progressDialog.dismiss();
                     Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
