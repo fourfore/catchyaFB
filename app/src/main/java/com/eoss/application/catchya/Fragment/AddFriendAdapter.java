@@ -22,7 +22,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by Foremost on 31/8/2559.
@@ -112,6 +114,7 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
 
 
                 mChatRoom = mChatRoom.push();
+
                 mChatRoom.child("Users").child(keys.get(position).toString()).setValue(true);
                 mChatRoom.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(true);
 

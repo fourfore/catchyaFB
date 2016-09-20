@@ -1,7 +1,6 @@
 package com.eoss.application.catchya.Activity;
 
 import android.content.Intent;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,9 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import com.eoss.application.catchya.Fragment.ChatAdapter;
-import com.eoss.application.catchya.Fragment.FavAdapter;
 import com.eoss.application.catchya.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -23,6 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -37,15 +38,15 @@ public class ChatActivity extends AppCompatActivity {
     private String idFriend;
     private String uid;
     private ArrayList<DataSnapshot> messages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         messages = new ArrayList<>();
+
         recyclerView = (RecyclerView)findViewById(R.id.chat_RecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
-
         adapter = new ChatAdapter(ChatActivity.this,messages);
 
         recyclerView.setAdapter(adapter);
@@ -98,10 +99,14 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(!textChat.getText().toString().equals("")) {
                     String Text = textChat.getText().toString().trim();
-                    DatabaseReference mChatRoomSave = mDatabase.child("ChatRoom").child(ChatRoomId).child("Message").push();
-                    mChatRoomSave.child("Text").setValue(Text);
-                    mChatRoomSave.child("Sender").setValue(uid);
-                    Log.d("ChatAct ChatRoomPop","save" + ChatRoomId);
+                    DatabaseReference mChatRoomSave = mDatabase.child("ChatRoom").child(ChatRoomId).child("Message");
+
+                    Map<String, String> newMessage = new HashMap<String, String>();
+                    newMessage.put("Sender", uid); // Sender uid
+                    newMessage.put("Text",Text);
+                    mChatRoomSave.push().setValue(newMessage);
+
+                    textChat.setText("");
                 }
             }
         });
@@ -110,9 +115,14 @@ public class ChatActivity extends AppCompatActivity {
         mChatRoomPopulate.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    Log.d("ChatAct ChatRoomPop","not null");
-                    messages.add(dataSnapshot);
-                    adapter.notifyDataSetChanged();
+                Log.d("ChatAct onChildAdded",dataSnapshot.toString());
+
+                        if (!messages.contains(dataSnapshot)){
+                            messages.add(dataSnapshot);
+                            adapter.notifyItemChanged(adapter.getItemCount()-1);
+                            recyclerView.scrollToPosition(adapter.getItemCount()-1);
+                        }
+
             }
 
             @Override
