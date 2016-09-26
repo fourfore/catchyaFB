@@ -45,6 +45,7 @@
         <activity
             android:name=".Activity.AppActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".Activity.SettingActivity"></activity>
         <activity android:name=".Activity.ChatActivity"></activity>
     </application>
 
