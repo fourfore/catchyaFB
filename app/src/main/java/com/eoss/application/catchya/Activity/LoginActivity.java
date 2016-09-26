@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.Arrays;
 
@@ -115,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                     mDatabase.child("Users").child(uid).child("Email").setValue(mAuth.getCurrentUser().getEmail());
                     mDatabase.child("Users").child(uid).child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
                     mDatabase.child("Users").child(uid).child("Radius").setValue(0+"");
+                    mDatabase.child("Token").child(uid).setValue(FirebaseInstanceId.getInstance().getToken());
                     progress.dismiss();
                     Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
