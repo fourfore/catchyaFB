@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/person_photo"
             android:layout_alignParentTop="true"
+            android:orientation="vertical"
             android:id="@+id/wrapper"
             >
             <ViewSwitcher
@@ -79,6 +80,11 @@
 
             </ViewSwitcher>
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/setting_button"
+                android:text="Setting"/>
 
         </LinearLayout>
 

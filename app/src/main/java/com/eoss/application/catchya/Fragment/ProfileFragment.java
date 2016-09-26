@@ -1,6 +1,7 @@
 package com.eoss.application.catchya.Fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.eoss.application.catchya.Activity.SettingActivity;
 import com.eoss.application.catchya.R;
 import com.google.android.gms.vision.text.Text;
 import com.google.firebase.auth.FirebaseAuth;
@@ -61,6 +63,7 @@ public class ProfileFragment extends Fragment {
         final TextView email = (TextView)getView().findViewById(R.id.person_email);
         final EditText editName = (EditText) getView().findViewById(R.id.person_name_edit);
         final EditText editEmail = (EditText) getView().findViewById(R.id.person_email_edit);
+        Button settingButton = (Button) getView().findViewById(R.id.setting_button);
 
         super.onStart();
         DatabaseReference mCurrentUser = mDatabase.child("Users").child(mAuth.getCurrentUser().getUid());
@@ -84,6 +87,7 @@ public class ProfileFragment extends Fragment {
 
 
         viewSwitcher =   (ViewSwitcher) getView().findViewById(R.id.mSwitchProfileEdit);
+
         myFirstView= (RelativeLayout ) getView().findViewById(R.id.profileTextView);
         mySecondView = (RelativeLayout) getView().findViewById(R.id.profileTextEdit);
         wrapper = (LinearLayout) getView().findViewById(R.id.wrapper);
@@ -99,6 +103,14 @@ public class ProfileFragment extends Fragment {
 
                     viewSwitcher.showNext();
                 }
+            }
+        });
+
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SettingActivity.class);
+                getActivity().startActivity(intent);
             }
         });
     }
