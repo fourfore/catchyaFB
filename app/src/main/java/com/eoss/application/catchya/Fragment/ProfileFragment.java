@@ -1,15 +1,18 @@
 package com.eoss.application.catchya.Fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.eoss.application.catchya.Activity.SettingActivity;
 import com.eoss.application.catchya.R;
 import com.google.android.gms.vision.text.Text;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +52,7 @@ public class ProfileFragment extends Fragment {
         final ImageView profilePic = (ImageView)getView().findViewById(R.id.person_photo);
         final TextView name = (TextView)getView().findViewById(R.id.person_name);
         final TextView email = (TextView)getView().findViewById(R.id.person_email);
+        Button setting_button = (Button)getView().findViewById(R.id.profile_setting_button);
         super.onStart();
         DatabaseReference mCurrentUser = mDatabase.child("Users").child(mAuth.getCurrentUser().getUid());
         mCurrentUser.addValueEventListener(new ValueEventListener() {
@@ -64,6 +68,14 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+
+        setting_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SettingActivity.class);
+                getActivity().startActivity(intent);
             }
         });
     }
