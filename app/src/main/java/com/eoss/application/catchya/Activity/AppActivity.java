@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -20,11 +19,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -36,8 +33,6 @@ import com.eoss.application.catchya.Fragment.ProfileFragment;
 import com.eoss.application.catchya.Fragment.SettingFragment;
 import com.eoss.application.catchya.MainActivity;
 import com.eoss.application.catchya.R;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -66,10 +61,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AppActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -125,7 +118,8 @@ public class AppActivity extends AppCompatActivity implements
     private DatabaseReference mFriendDatabasePopulate;
     private RecyclerView recyclerView;
     private ProgressDialog progressDialog;
-
+    private ValueEventListener mFriendDatabaseV;
+    private ChildEventListener mFriendDatabasePopulateV;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,8 +132,6 @@ public class AppActivity extends AppCompatActivity implements
                 return true;
             }
         };
-
-
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
@@ -278,6 +270,7 @@ public class AppActivity extends AppCompatActivity implements
 
                     Log.d("Name:" + user.getDisplayName(), "ImageUrl:" + user.getPhotoUrl());
                     flag = false;
+
                 } else {
                     progressDialog.dismiss();
                     Intent myIntent = new Intent(AppActivity.this, MainActivity.class);
@@ -453,7 +446,7 @@ public class AppActivity extends AppCompatActivity implements
                     //location fkey
                     final String fKey = key;
                     if (fKey != mAuth.getCurrentUser().getUid()) {
-                        mFriendDatabase.addValueEventListener(new ValueEventListener() {
+                        mFriendDatabaseV = new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
@@ -489,7 +482,9 @@ public class AppActivity extends AppCompatActivity implements
                             public void onCancelled(DatabaseError databaseError) {
 
                             }
-                        });
+                        };
+
+                        mFriendDatabase.addValueEventListener(mFriendDatabaseV);
                     }
 
                 }
@@ -522,7 +517,7 @@ public class AppActivity extends AppCompatActivity implements
 
             mFriendDatabasePopulate = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
             mFriendDatabasePopulate.keepSynced(true);
-            mFriendDatabasePopulate.addChildEventListener(new ChildEventListener() {
+            mFriendDatabasePopulateV = new ChildEventListener() {
 
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -562,7 +557,9 @@ public class AppActivity extends AppCompatActivity implements
                 public void onCancelled(DatabaseError databaseError) {
 
                 }
-            });
+            };
+
+            mFriendDatabasePopulate.addChildEventListener(mFriendDatabasePopulateV);
 
         } else {
 
@@ -649,6 +646,10 @@ public class AppActivity extends AppCompatActivity implements
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+
+        mFriendDatabase.removeEventListener(mFriendDatabaseV);
+        mFriendDatabasePopulate.addChildEventListener(mFriendDatabasePopulateV);
+
         super.onStop();
     }
 

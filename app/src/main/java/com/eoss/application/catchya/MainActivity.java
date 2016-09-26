@@ -38,12 +38,17 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setMessage("Please wait for a while ...");
         progressDialog.show();
 
+
+
+
+
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
+
 
                     progressDialog.dismiss();
                     Intent myIntent = new Intent(MainActivity.this, AppActivity.class);
