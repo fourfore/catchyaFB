@@ -123,7 +123,7 @@ public class ChatActivity extends AppCompatActivity {
                     mChatRoomSave.push().setValue(newMessage);
 
                     textChat.setText("");
-                    postData();
+                    postData(Text);
                 }
             }
         });
@@ -166,13 +166,11 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-    public void postData() {
-        final String username = "Test";
-        final String password = "Test";
-        final String email = "Test";
+    public void postData(String text) {
+        final String newText = text;
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.1.33/send_notification.php",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.1.33:80/send_notification.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -185,6 +183,12 @@ public class ChatActivity extends AppCompatActivity {
                         Log.d("error",error.toString());
                     }
                 }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("message",newText);
+                return params;
+            }
 
         };
         int socketTimeout = 10000;//30 seconds - change to what you want
