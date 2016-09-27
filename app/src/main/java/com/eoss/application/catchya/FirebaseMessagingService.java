@@ -24,7 +24,9 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated.
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body: " + remoteMessage.getData().toString());
+        Log.d(TAG, "Notification Message Body: " + remoteMessage.getData().get("message"));
+        sendNotification(remoteMessage.getData().get("message"));
+
     }
 
     // [END receive_message]
@@ -42,7 +44,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.cast_ic_notification_small_icon)
+                .setSmallIcon(R.drawable.logo)
                 .setContentTitle("FCM Message")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
