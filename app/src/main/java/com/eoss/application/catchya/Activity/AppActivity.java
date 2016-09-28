@@ -647,10 +647,10 @@ public class AppActivity extends AppCompatActivity implements
             mAuth.removeAuthStateListener(mAuthListener);
         }
 
-        if (!mFriendDatabasePopulateV.equals(null)){
+        if (!mFriendDatabase.equals(null)){
             mFriendDatabase.removeEventListener(mFriendDatabaseV);
         }
-        if (!mFriendDatabasePopulateV.equals(null)){
+        if (!mFriendDatabase.equals(null)){
             mFriendDatabasePopulate.addChildEventListener(mFriendDatabasePopulateV);
         }
 
