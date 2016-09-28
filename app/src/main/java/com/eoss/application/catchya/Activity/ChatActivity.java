@@ -1,7 +1,6 @@
 package com.eoss.application.catchya.Activity;
 
 import android.content.Intent;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,7 +9,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -22,7 +20,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.eoss.application.catchya.Fragment.ChatAdapter;
-import com.eoss.application.catchya.MainActivity;
 import com.eoss.application.catchya.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -31,14 +28,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
@@ -55,10 +49,13 @@ public class ChatActivity extends AppCompatActivity {
     private String uid;
     private ArrayList<DataSnapshot> messages;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chat);
+
         messages = new ArrayList<>();
 
         recyclerView = (RecyclerView)findViewById(R.id.chat_RecyclerView);
@@ -123,7 +120,13 @@ public class ChatActivity extends AppCompatActivity {
                     mChatRoomSave.push().setValue(newMessage);
 
                     textChat.setText("");
-                    postData(Text);
+
+                    String token = FirebaseInstanceId.getInstance().getToken();
+                    String message = "New message";
+                    String title = "Message";
+
+                    postData(message,title,token);
+
                 }
             }
         });
@@ -166,15 +169,17 @@ public class ChatActivity extends AppCompatActivity {
 
 
 
-    public void postData(String text) {
-        final String newText = text;
+    public void postData(String message,String title,String token) {
+        final String mMessage = message;
+        final String mTitle = title;
+        final String mToken = token;;
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://192.168.1.33:80/send_notification.php",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://catchya-eoss.esy.es/send_notification.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(ChatActivity.this,response,Toast.LENGTH_LONG).show();
+                        Log.d("pst response",response.toString());
                     }
                 },
                 new Response.ErrorListener() {
@@ -186,7 +191,11 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             protected Map<String,String> getParams(){
                 Map<String,String> params = new HashMap<String, String>();
-                params.put("message",newText);
+
+                params.put("message",mMessage);
+                params.put("title",mTitle);
+                params.put("token",mToken);
+
                 return params;
             }
 
