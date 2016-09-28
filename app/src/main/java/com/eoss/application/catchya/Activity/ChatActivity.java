@@ -175,7 +175,7 @@ public class ChatActivity extends AppCompatActivity {
         final String mToken = token;;
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://catchya-eoss.esy.es/send_notification.php",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://catchya.96.lt/send_notification.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

@@ -96,7 +96,7 @@ public class SettingActivity extends AppCompatActivity {
 //                    userRef.child("Radius").setValue(100+"");
 //                }
                 textView.setText(progress+"km.");
-                userRef.child("Radius").setValue(progress+"");
+                //userRef.child("Radius").setValue(progress+"");
             }
 
             @Override
