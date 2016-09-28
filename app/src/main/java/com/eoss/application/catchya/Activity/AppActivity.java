@@ -84,7 +84,7 @@ public class AppActivity extends AppCompatActivity implements
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     //firebase variable
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener mAuthListener;
 
     // Fragment Variable
@@ -422,152 +422,230 @@ public class AppActivity extends AppCompatActivity implements
      */
     private void updateUI() {
         //updateQueryNearby2();
-        if (mCurrentLocation != null) {
+        DatabaseReference settingRef= FirebaseDatabase.getInstance().getReference().child("Setting").child(mAuth.getCurrentUser().getUid());
+        settingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int radius = Integer.parseInt(dataSnapshot.child("Radius").getValue().toString());
+                final String search_gender = dataSnapshot.child("search_gender").getValue().toString();
+                if (mCurrentLocation != null) {
 
 
-            Log.d("lat::>" + mCurrentLocation.getLatitude(), "long::>" + mCurrentLocation.getLongitude());
-            mRequestingLocationUpdates = true;
-            //stopLocationUpdates();
-            geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
-            geoLocation = new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-            mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
-            mFriendDatabase.keepSynced(true);
+                    Log.d("lat::>" + mCurrentLocation.getLatitude(), "long::>" + mCurrentLocation.getLongitude());
+                    mRequestingLocationUpdates = true;
+                    //stopLocationUpdates();
+                    geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
+                    geoLocation = new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                    mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+                    mFriendDatabase.keepSynced(true);
 
-            //Save location
-            geoFire.setLocation(mAuth.getCurrentUser().getUid(), new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+                    //Save location
+                    geoFire.setLocation(mAuth.getCurrentUser().getUid(), new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
 
 
-            //Query location
-            geoQuery = geoFire.queryAtLocation((geoLocation), 2);
-            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                @Override
-                public void onKeyEntered(final String key, GeoLocation location) {
+                    //Query location
+                    Log.d("Radius-fore",radius+"");
+                    geoQuery = geoFire.queryAtLocation((geoLocation), radius);
+                    geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                        @Override
+                        public void onKeyEntered(final String key, GeoLocation location) {
 
-                    //location fkey
-                    final String fKey = key;
-                    if (fKey != mAuth.getCurrentUser().getUid()) {
-                        mFriendDatabaseV = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
+                            //location fkey
+                            final String fKey = key;
+                            if (fKey != mAuth.getCurrentUser().getUid()) {
+                                mFriendDatabaseV = new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
+                                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(fKey);
+                                        userRef.child("Gender").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                String  gender= dataSnapshot.getValue().toString();
+                                                if(search_gender.equals("Men")){
+                                                    if(gender.equals("Men")){
+                                                        if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
+                                                            Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
+                                                            if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
+                                                                if (!locationKeyMap.containsKey(fKey)) {
+                                                                    Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
+                                                                    locationKeyMap.put(fKey, "Send");
+                                                                    checkAdapter();
+                                                                }
 
-                                if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
-                                    Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
-                                    if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
-                                        if (!locationKeyMap.containsKey(fKey)) {
-                                            Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
-                                            //locationKey.add(fKey);
-                                            locationKeyMap.put(fKey, "Send");
-                                            checkAdapter();
-                                        }
+                                                            } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
+                                                                locationKeyMap.remove(fKey);
+                                                                checkAdapter();
+                                                            }
+                                                        } else if (!dataSnapshot.child(fKey).exists()) {
+                                                            if (!locationKeyMap.containsKey(fKey)) {
 
-                                    } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
-                                        locationKeyMap.remove(fKey);
-                                        checkAdapter();
+                                                                Log.d("dataSnapshot", "add not in relation");
+                                                                locationKeyMap.put(fKey, "Null");
+                                                                checkAdapter();
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if(search_gender.equals("Women")){
+                                                    if(gender.equals("Women")){
+                                                        if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
+                                                            Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
+                                                            if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
+                                                                if (!locationKeyMap.containsKey(fKey)) {
+                                                                    Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
+                                                                    locationKeyMap.put(fKey, "Send");
+                                                                    checkAdapter();
+                                                                }
+
+                                                            } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
+                                                                locationKeyMap.remove(fKey);
+                                                                checkAdapter();
+                                                            }
+                                                        } else if (!dataSnapshot.child(fKey).exists()) {
+                                                            if (!locationKeyMap.containsKey(fKey)) {
+
+                                                                Log.d("dataSnapshot", "add not in relation");
+                                                                locationKeyMap.put(fKey, "Null");
+                                                                checkAdapter();
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else if(search_gender.equals("MenAndWomen")){
+                                                        if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
+                                                            Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
+                                                            if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
+                                                                if (!locationKeyMap.containsKey(fKey)) {
+                                                                    Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
+                                                                    locationKeyMap.put(fKey, "Send");
+                                                                    checkAdapter();
+                                                                }
+
+                                                            } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
+                                                                locationKeyMap.remove(fKey);
+                                                                checkAdapter();
+                                                            }
+                                                        } else if (!dataSnapshot.child(fKey).exists()) {
+                                                            if (!locationKeyMap.containsKey(fKey)) {
+
+                                                                Log.d("dataSnapshot", "add not in relation");
+                                                                locationKeyMap.put(fKey, "Null");
+                                                                checkAdapter();
+
+                                                            }
+                                                        }
+
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
                                     }
-                                } else if (!dataSnapshot.child(fKey).exists()) {
-                                    if (!locationKeyMap.containsKey(fKey)) {
 
-                                        Log.d("dataSnapshot", "add not in relation");
-                                        //locationKey.add(fKey);
-                                        locationKeyMap.put(fKey, "Null");
-                                        checkAdapter();
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
                                     }
-                                }
+                                };
 
+                                mFriendDatabase.addValueEventListener(mFriendDatabaseV);
                             }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                        }
 
+                        @Override
+                        public void onKeyExited(String key) {
+                            locationKeyMap.remove(key);
+                            checkAdapter();
+                            Log.d("Ready", "onKeyExited" + key);
+                        }
+
+                        @Override
+                        public void onKeyMoved(String key, GeoLocation location) {
+
+                        }
+
+                        @Override
+                        public void onGeoQueryReady() {
+                            progressDialog.dismiss();
+                            Log.d("Ready", "Fire");
+
+                        }
+
+                        @Override
+                        public void onGeoQueryError(DatabaseError error) {
+
+                        }
+                    });
+
+
+                    mFriendDatabasePopulate = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+                    mFriendDatabasePopulate.keepSynced(true);
+                    mFriendDatabasePopulateV = new ChildEventListener() {
+
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                        }
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                            if (dataSnapshot.getValue().equals("Receive") || dataSnapshot.getValue().equals("Friend")) {
+                                System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
+                                locationKeyMap.remove(dataSnapshot.getKey());
+                                checkAdapter();
+                            }else if(dataSnapshot.getValue().equals("Send")){
+                                System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
+                                locationKeyMap.put(dataSnapshot.getKey(),"Send");
+                                checkAdapter();
                             }
-                        };
 
-                        mFriendDatabase.addValueEventListener(mFriendDatabaseV);
-                    }
 
-                }
+                        }
 
-                @Override
-                public void onKeyExited(String key) {
-                    locationKeyMap.remove(key);
-                    checkAdapter();
-                    Log.d("Ready", "onKeyExited" + key);
-                }
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+                            System.out.println("dataSnapshot add onChildRemoved " + dataSnapshot.getKey());
+                            locationKeyMap.put(dataSnapshot.getKey(), "Null");
+                            checkAdapter();
 
-                @Override
-                public void onKeyMoved(String key, GeoLocation location) {
+                        }
 
-                }
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-                @Override
-                public void onGeoQueryReady() {
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    };
+
+                    mFriendDatabasePopulate.addChildEventListener(mFriendDatabasePopulateV);
+
+                } else {
+
                     progressDialog.dismiss();
-                    Log.d("Ready", "Fire");
-
-                }
-
-                @Override
-                public void onGeoQueryError(DatabaseError error) {
-
-                }
-            });
-
-
-            mFriendDatabasePopulate = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
-            mFriendDatabasePopulate.keepSynced(true);
-            mFriendDatabasePopulateV = new ChildEventListener() {
-
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                    if (dataSnapshot.getValue().equals("Receive") || dataSnapshot.getValue().equals("Friend")) {
-                        System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
-                        locationKeyMap.remove(dataSnapshot.getKey());
-                        checkAdapter();
-                    }else if(dataSnapshot.getValue().equals("Send")){
-                        System.out.println("dataSnapshot add onChildChanged" + dataSnapshot.getKey());
-                        locationKeyMap.put(dataSnapshot.getKey(),"Send");
-                        checkAdapter();
-                    }
+                    Log.d("lat::>null", "long::>null");
 
 
                 }
+            }
 
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    System.out.println("dataSnapshot add onChildRemoved " + dataSnapshot.getKey());
-                    locationKeyMap.put(dataSnapshot.getKey(), "Null");
-                    checkAdapter();
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                }
+            }
+        });
 
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            };
-
-            mFriendDatabasePopulate.addChildEventListener(mFriendDatabasePopulateV);
-
-        } else {
-
-            progressDialog.dismiss();
-            Log.d("lat::>null", "long::>null");
-
-
-        }
 
     }
 

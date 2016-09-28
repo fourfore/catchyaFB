@@ -37,8 +37,8 @@ public class SettingActivity extends AppCompatActivity {
 
         menSwitch = (SwitchCompat)findViewById(R.id.men_switch);
         womenSwitch = (SwitchCompat)findViewById(R.id.women_switch);
-        final DatabaseReference userRef = mDatabase.child("Users").child(mAuth.getCurrentUser().getUid());
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        final DatabaseReference settingRef = mDatabase.child("Setting").child(mAuth.getCurrentUser().getUid());
+        settingRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 seekbarDistance.setProgress(Integer.parseInt(dataSnapshot.child("Radius").getValue().toString()));
@@ -51,33 +51,30 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
         final Boolean[] b = new Boolean[1];
-        b[0] = false;
-//        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if(dataSnapshot.child("search_gender").getValue().toString().equals("Men")){
-//                    menSwitch.setChecked(true);
-//                    womenSwitch.setChecked(false);
-//                    b[0] =true;
-//                }
-//                else if(dataSnapshot.child("search_gender").getValue().toString().equals("Women")){
-//                    menSwitch.setChecked(false);
-//                    womenSwitch.setChecked(true);
-//                    b[0] =true;
-//                }
-//                else if(dataSnapshot.child("search_gender").getValue().toString().equals("MenAndWomen")){
-//                    menSwitch.setChecked(true);
-//                    womenSwitch.setChecked(true);
-//                    b[0] =true;
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+        settingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                b[0] = true;
+                if(dataSnapshot.child("search_gender").getValue().toString().equals("Men")){
+                    menSwitch.setChecked(true);
+                    womenSwitch.setChecked(false);
+                }
+                else if(dataSnapshot.child("search_gender").getValue().toString().equals("Women")){
+                    menSwitch.setChecked(false);
+                    womenSwitch.setChecked(true);
+                }
+                else if(dataSnapshot.child("search_gender").getValue().toString().equals("MenAndWomen")){
+                    menSwitch.setChecked(true);
+                    womenSwitch.setChecked(true);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 //        seekbarDistance.setOnSeekbarChangeListener(new OnSeekbarChangeListener() {
 //            @Override
 //            public void valueChanged(Number value) {
@@ -89,14 +86,14 @@ public class SettingActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 //                if(progress!=100){
 //                    textView.setText((progress+1)+"km.");
-//                    userRef.child("Radius").setValue((progress+1)+"");
+//                    Ref.child("Radius").setValue((progress+1)+"");
 //                }
 //                else{
 //                    textView.setText(100+"km.");
 //                    userRef.child("Radius").setValue(100+"");
 //                }
                 textView.setText(progress+"km.");
-                //userRef.child("Radius").setValue(progress+"");
+                settingRef.child("Radius").setValue(progress+"");
             }
 
             @Override
@@ -110,51 +107,53 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-//        menSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (b[0] != true) {
-//                    Log.d("men", isChecked + "");
-//                    if (isChecked == true && womenSwitch.isChecked() == false) {
-//                        //save in db men on
-//                        userRef.child("search_gender").setValue("Men");
-//                    } else if (isChecked == true && womenSwitch.isChecked() == true) {
-//                        //save in db men and women
-//                        userRef.child("search_gender").setValue("MenAndWomen");
-//                    } else if (isChecked == false && womenSwitch.isChecked() == false) {
-//                        womenSwitch.setChecked(true);
-//                        menSwitch.setChecked(false);
-//                        userRef.child("search_gender").setValue("Women");
-//                    } else if (isChecked == false && womenSwitch.isChecked() == true) {
-//                        //save in db women on
-//                        userRef.child("search_gender").setValue("Women");
-//                    }
-//                }
-//                b[0] = false;
-//            }
-//        });
-//
-//        womenSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (b[0] != true) {
-//                    if (isChecked == true && menSwitch.isChecked() == false) {
-//                        userRef.child("search_gender").setValue("Women");
-//                    } else if (isChecked == true && menSwitch.isChecked() == true) {
-//                        //save in db men and women
-//                        userRef.child("search_gender").setValue("MenAndWomen");
-//                    } else if (isChecked == false && menSwitch.isChecked() == false) {
-//                        womenSwitch.setChecked(false);
-//                        menSwitch.setChecked(true);
-//                        userRef.child("search_gender").setValue("Men");
-//                    } else if (isChecked == false && menSwitch.isChecked() == true) {
-//                        //save in db women on
-//                        userRef.child("search_gender").setValue("Men");
-//                    }
-//                }
-//                b[0] = false;
-//            }
-//        });
+        menSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("Bfore",b[0]+" Men");
+                if (b[0] != true) {
+                    Log.d("men", isChecked + "");
+                    if (isChecked == true && womenSwitch.isChecked() == false) {
+                        //save in db men on
+                        settingRef.child("search_gender").setValue("Men");
+                    } else if (isChecked == true && womenSwitch.isChecked() == true) {
+                        //save in db men and women
+                        settingRef.child("search_gender").setValue("MenAndWomen");
+                    } else if (isChecked == false && womenSwitch.isChecked() == false) {
+                        womenSwitch.setChecked(true);
+                        menSwitch.setChecked(false);
+                        settingRef.child("search_gender").setValue("Women");
+                    } else if (isChecked == false && womenSwitch.isChecked() == true) {
+                        //save in db women on
+                        settingRef.child("search_gender").setValue("Women");
+                    }
+                }
+                b[0] = false;
+            }
+        });
+
+        womenSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("Bfore",b[0]+" Women");
+                if (b[0] != true) {
+                    if (isChecked == true && menSwitch.isChecked() == false) {
+                        settingRef.child("search_gender").setValue("Women");
+                    } else if (isChecked == true && menSwitch.isChecked() == true) {
+                        //save in db men and women
+                        settingRef.child("search_gender").setValue("MenAndWomen");
+                    } else if (isChecked == false && menSwitch.isChecked() == false) {
+                        womenSwitch.setChecked(false);
+                        menSwitch.setChecked(true);
+                        settingRef.child("search_gender").setValue("Men");
+                    } else if (isChecked == false && menSwitch.isChecked() == true) {
+                        //save in db women on
+                        settingRef.child("search_gender").setValue("Men");
+                    }
+                }
+                b[0] = false;
+            }
+        });
 
     }
 }

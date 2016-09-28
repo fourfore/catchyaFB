@@ -100,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void checkUserExits() {
         final String uid = mAuth.getCurrentUser().getUid().toString();
+        final DatabaseReference settingRef = mDatabase.child("Setting");
         mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -115,7 +116,10 @@ public class LoginActivity extends AppCompatActivity {
                     mDatabase.child("Users").child(uid).child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
                     mDatabase.child("Users").child(uid).child("Email").setValue(mAuth.getCurrentUser().getEmail());
                     mDatabase.child("Users").child(uid).child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
-                    mDatabase.child("Users").child(uid).child("Radius").setValue(1+"");
+                    mDatabase.child("Users").child(uid).child("Gender").setValue(mAuth.getCurrentUser());
+                    //mDatabase.child("Users").child(uid).child("Radius").setValue(1+"");
+                    settingRef.child(uid).child("Radius").setValue(1+"");
+                    settingRef.child(uid).child("search_gender").setValue("MenAndWomen");
                     mDatabase.child("Token").child(uid).setValue(FirebaseInstanceId.getInstance().getToken());
                     progress.dismiss();
                     Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
