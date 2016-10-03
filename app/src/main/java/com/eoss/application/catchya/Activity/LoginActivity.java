@@ -13,6 +13,9 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -30,6 +33,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
@@ -42,6 +48,8 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
     private boolean flag = true;
+    private LoginResult fbLoginResult;
+    private DatabaseReference settingRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,8 +79,9 @@ public class LoginActivity extends AppCompatActivity {
         LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+                fbLoginResult = loginResult;
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
+                handleFacebookAccessToken(loginResult);
                 progress.show();
             }
 
@@ -93,40 +102,28 @@ public class LoginActivity extends AppCompatActivity {
         btn_fb_login.setOnClickListener(new android.view.View.OnClickListener() {
             @Override
             public void onClick(android.view.View v) {
-                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email","public_profile", "user_friends"));
+
+                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email","public_profile", "user_friends", "user_birthday" , "friends_birthday"));
             }
         });
     }
 
     private void checkUserExits() {
         final String uid = mAuth.getCurrentUser().getUid().toString();
-        final DatabaseReference settingRef = mDatabase.child("Setting");
+        settingRef = mDatabase.child("Setting");
         mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(uid)){
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + uid);
                     Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
-                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
-                    LoginActivity.this.startActivity(myIntent);
+                    myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    LoginActivity.this.startActivityForResult(myIntent, 0);
+                    overridePendingTransition(0,0);
                     progress.dismiss();
                     finish();
                 }else{
-                    Log.d(TAG, "onAuthStateChanged:Register:" + uid);
-                    mDatabase.child("Users").child(uid).child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
-                    mDatabase.child("Users").child(uid).child("Email").setValue(mAuth.getCurrentUser().getEmail());
-                    mDatabase.child("Users").child(uid).child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
-                    mDatabase.child("Users").child(uid).child("Gender").setValue(mAuth.getCurrentUser());
-                    //mDatabase.child("Users").child(uid).child("Radius").setValue(1+"");
-                    settingRef.child(uid).child("Radius").setValue(1+"");
-                    settingRef.child(uid).child("search_gender").setValue("MenAndWomen");
-                    mDatabase.child("Token").child(uid).setValue(FirebaseInstanceId.getInstance().getToken());
-                    progress.dismiss();
-                    Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
-                    myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
-                    LoginActivity.this.startActivity(myIntent);
-                    progress.dismiss();
-                    finish();
+                    setFacebookData(fbLoginResult);
                 }
             }
 
@@ -164,11 +161,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // [START auth_with_facebook]
-    private void handleFacebookAccessToken(AccessToken token) {
+    private void handleFacebookAccessToken(final LoginResult loginResult) {
 
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
+        Log.d(TAG, "handleFacebookAccessToken:" + loginResult.getAccessToken());
 
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        AuthCredential credential = FacebookAuthProvider.getCredential(loginResult.getAccessToken().getToken());
         // Prompt the user to re-provide their sign-in credentials
 
         mAuth.signInWithCredential(credential)
@@ -184,10 +181,51 @@ public class LoginActivity extends AppCompatActivity {
                             progress.dismiss();
                         }
 
-
+                        setFacebookData(loginResult);
                     }
                 });
 
+    }
+
+    private void setFacebookData(final LoginResult loginResult)
+    {
+        GraphRequest request = GraphRequest.newMeRequest(
+                loginResult.getAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        // Application code
+                        try {
+                            Log.i("Response",object.toString());
+
+                            String gender = response.getJSONObject().getString("gender");
+
+                            String uid = mAuth.getCurrentUser().getUid();
+                            Log.d(TAG, "onAuthStateChanged:Register:" + uid);
+                            mDatabase.child("Users").child(uid).child("Name").setValue(mAuth.getCurrentUser().getDisplayName());
+                            mDatabase.child("Users").child(uid).child("Email").setValue(mAuth.getCurrentUser().getEmail());
+                            mDatabase.child("Users").child(uid).child("Pic").setValue(mAuth.getCurrentUser().getPhotoUrl().toString());
+                            mDatabase.child("Users").child(uid).child("Gender").setValue(gender);
+                            //mDatabase.child("Users").child(uid).child("Radius").setValue(1+"");
+                            settingRef.child(uid).child("Radius").setValue(1+"");
+                            settingRef.child(uid).child("search_gender").setValue("MenAndWomen");
+                            mDatabase.child("Token").child(uid).setValue(FirebaseInstanceId.getInstance().getToken());
+                            progress.dismiss();
+
+                            Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
+                             myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
+                            LoginActivity.this.startActivity(myIntent);
+                            finish();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,email,first_name,last_name,gender, birthday");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
 }

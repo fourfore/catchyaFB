@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -23,6 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.eoss.application.catchya.Fragment.AddFriendFragment;
@@ -206,7 +208,7 @@ public class AppActivity extends AppCompatActivity implements
         viewPager.setOffscreenPageLimit(4);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
-        viewPager.setCurrentItem(1);
+        //viewPager.setCurrentItem(1);
 
         //toolbar.setTitle("Nearby");
         setupTabIcons();
@@ -461,9 +463,9 @@ public class AppActivity extends AppCompatActivity implements
                                         userRef.child("Gender").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                                String  gender= dataSnapshot.getValue().toString();
+                                                String gender= dataSnapshot.getValue().toString();
                                                 if(search_gender.equals("Men")){
-                                                    if(gender.equals("Men")){
+                                                    if(gender.equals("male")){
                                                         if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
                                                             Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
                                                             if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
@@ -489,7 +491,7 @@ public class AppActivity extends AppCompatActivity implements
                                                     }
                                                 }
                                                 else if(search_gender.equals("Women")){
-                                                    if(gender.equals("Women")){
+                                                    if(gender.equals("female")){
                                                         if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
                                                             Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
                                                             if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
@@ -809,7 +811,9 @@ public class AppActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(final int requestCode, int resultCode, final Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_CANCELED) {
         final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
         switch (requestCode) {
             case REQUEST_CHECK_SETTINGS:
@@ -817,7 +821,7 @@ public class AppActivity extends AppCompatActivity implements
                     case Activity.RESULT_OK:
                         startLocationUpdates();
 
-                        Log.d("RESULT_OK","RESULT_OK");
+                        Log.d("RESULT_OK", "RESULT_OK");
                         // All required changes were successfully made
                         //FINALLY YOUR OWN METHOD TO GET YOUR USER LOCATION HERE
 
@@ -825,7 +829,7 @@ public class AppActivity extends AppCompatActivity implements
                     case Activity.RESULT_CANCELED:
                         // The user was asked to change settings, but chose not to
 
-                        Intent myIntent = new Intent(this,LoginActivity.class);
+                        Intent myIntent = new Intent(this, LoginActivity.class);
                         myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(myIntent);
                         finish();
@@ -835,6 +839,9 @@ public class AppActivity extends AppCompatActivity implements
                         break;
                 }
                 break;
+            }
         }
     }
+
+
 }
