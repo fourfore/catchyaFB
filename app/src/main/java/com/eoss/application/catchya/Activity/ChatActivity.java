@@ -1,6 +1,7 @@
 package com.eoss.application.catchya.Activity;
 
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,8 +20,10 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.eoss.application.catchya.FirebaseMessagingService;
 import com.eoss.application.catchya.Fragment.ChatAdapter;
 import com.eoss.application.catchya.R;
+import com.eoss.application.catchya.SendNotify;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +38,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.leolin.shortcutbadger.ShortcutBadger;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 public class ChatActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
@@ -48,7 +55,8 @@ public class ChatActivity extends AppCompatActivity {
     private String idFriend;
     private String uid;
     private ArrayList<DataSnapshot> messages;
-
+    private DatabaseReference mAdapterUser;
+    private DatabaseReference mClearRedbadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +80,37 @@ public class ChatActivity extends AppCompatActivity {
         idFriend = intent.getStringExtra("user_id");
         uid = mAuth.getCurrentUser().getUid().toString();
 
+        mClearRedbadge = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(uid).child(idFriend).child("Unread");
+        mClearRedbadge.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final int unRead = Integer.parseInt(dataSnapshot.getValue().toString());
+                final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(uid);
+                redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+                        totalBadge = totalBadge-unRead;
+                        redBadge.setValue(totalBadge+"");
+                        Log.d("red-Total",totalBadge+"");
+
+                        ShortcutBadger.applyCount(ChatActivity.this, totalBadge);
+
+                        mAdapterUser.setValue("0");
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         Log.d("ChatAct",idFriend);
         mMessageAdapterUid = mDatabase.child("MessageAdapter").child(uid);
         mMessageAdapterUid.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -119,13 +158,30 @@ public class ChatActivity extends AppCompatActivity {
                     newMessage.put("Text",Text);
                     mChatRoomSave.push().setValue(newMessage);
 
+                    final DatabaseReference mAdapter = mDatabase.child("MessageAdapter").child(idFriend).child(uid).child("Unread");
+                    mAdapter.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            int unReadMessage = Integer.parseInt(dataSnapshot.getValue().toString());
+                            unReadMessage++;
+                            mAdapter.setValue(unReadMessage);
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                     textChat.setText("");
 
                     String token = FirebaseInstanceId.getInstance().getToken();
                     String message = "New message";
                     String title = "Message";
 
-                    postData(message,title,token);
+
+                    SendNotify sendNotify = new SendNotify();
+                    sendNotify.sendNotify(message,title,token,mAuth.getCurrentUser().getUid(),idFriend,getApplicationContext());
 
                 }
             }
@@ -165,45 +221,41 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
-    }
 
-
-
-    public void postData(String message,String title,String token) {
-        final String mMessage = message;
-        final String mTitle = title;
-        final String mToken = token;;
-
-        RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://catchya.96.lt/send_notification.php",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("pst response",response.toString());
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("error",error.toString());
-                    }
-                }){
+        mAdapterUser = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(uid).child(idFriend).child("Unread");
+        mAdapterUser.addValueEventListener(new ValueEventListener() {
             @Override
-            protected Map<String,String> getParams(){
-                Map<String,String> params = new HashMap<String, String>();
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                params.put("message",mMessage);
-                params.put("title",mTitle);
-                params.put("token",mToken);
+                final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(uid);
+                redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+                        totalBadge = totalBadge-1;
+                        redBadge.setValue(totalBadge+"");
 
-                return params;
+
+                        ShortcutBadger.applyCount(ChatActivity.this, totalBadge);
+
+                        mAdapterUser.setValue("0");
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+
+                });
+                mAdapterUser.setValue("0");
+
             }
 
-        };
-        int socketTimeout = 10000;//30 seconds - change to what you want
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-        stringRequest.setRetryPolicy(policy);
-        mRequestQueue.add(stringRequest);
+            }
+        });
+
     }
 }

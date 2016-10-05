@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import io.apptik.widget.MultiSlider;
+
 public class SettingActivity extends AppCompatActivity {
     private SeekBar seekbarDistance;
     private TextView textView;
@@ -155,5 +157,40 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
+        //------------------AGE SEARCH SECTION-------------------------
+        final MultiSlider ageSlider = (MultiSlider)findViewById(R.id.range_slider_age);
+        ageSlider.setMin(18);
+        ageSlider.setMax(50);
+        final TextView maxTextView = (TextView)findViewById(R.id.max_age);
+        final TextView minTextView = (TextView)findViewById(R.id.min_age);
+        DatabaseReference searchAgeRef = settingRef.child("age_search");
+        searchAgeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int max = Integer.parseInt(dataSnapshot.child("min").getValue().toString());
+                int min = Integer.parseInt(dataSnapshot.child("min").getValue().toString());
+                ageSlider.getThumb(0).setValue(Integer.parseInt(dataSnapshot.child("min").getValue().toString()));
+                ageSlider.getThumb(0).setValue(Integer.parseInt(dataSnapshot.child("max").getValue().toString()));
+                minTextView.setText(dataSnapshot.child("min").getValue().toString());
+                maxTextView.setText(dataSnapshot.child("max").getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        ageSlider.setOnThumbValueChangeListener(new MultiSlider.OnThumbValueChangeListener() {
+            @Override
+            public void onValueChanged(MultiSlider multiSlider, MultiSlider.Thumb thumb, int thumbIndex, int value) {
+                if (thumbIndex == 0) {
+                    settingRef.child("age_search").child("min").setValue(value+"");
+                    minTextView.setText(value+"");
+                } else if(thumbIndex == 1) {
+                    settingRef.child("age_search").child("max").setValue(value+"");
+                    maxTextView.setText(value+"");
+                }
+            }
+        });
     }
 }

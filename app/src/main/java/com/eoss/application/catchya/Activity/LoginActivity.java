@@ -48,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference mDatabase;
     private boolean flag = true;
+    private boolean flagRegis = true;
     private LoginResult fbLoginResult;
     private DatabaseReference settingRef;
     @Override
@@ -66,10 +67,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && flag) {
-                        checkUserExits();
-                        flag = false;
+                    checkUserExits();
+                    flag = false;
                 } else {
                     Log.d(TAG, "onAuthStateChanged:signed_out");
+
                 }
 
             }
@@ -111,25 +113,29 @@ public class LoginActivity extends AppCompatActivity {
     private void checkUserExits() {
         final String uid = mAuth.getCurrentUser().getUid().toString();
         settingRef = mDatabase.child("Setting");
-        mDatabase.child("Users").addValueEventListener(new ValueEventListener() {
+        mDatabase.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(uid)){
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + uid);
+                if (dataSnapshot.hasChild(uid) && flagRegis){
+                    flagRegis = false;
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + flagRegis);
                     Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
-                    myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     LoginActivity.this.startActivityForResult(myIntent, 0);
                     overridePendingTransition(0,0);
                     progress.dismiss();
                     finish();
                 }else{
+
+                    flagRegis = false;
+                    Log.d(TAG, "onAuthStateChanged:signed_Rigister:" + flagRegis);
                     setFacebookData(fbLoginResult);
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                    Log.d(TAG, "onAuthStateChanged:Error:" + databaseError.getMessage());
+                Log.d(TAG, "onAuthStateChanged:Error:" + databaseError.getMessage());
             }
         });
 
@@ -181,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
                             progress.dismiss();
                         }
 
-                        setFacebookData(loginResult);
+
                     }
                 });
 
@@ -209,13 +215,19 @@ public class LoginActivity extends AppCompatActivity {
                             //mDatabase.child("Users").child(uid).child("Radius").setValue(1+"");
                             settingRef.child(uid).child("Radius").setValue(1+"");
                             settingRef.child(uid).child("search_gender").setValue("MenAndWomen");
+                            settingRef.child(uid).child("age_search").child("max").setValue("30");
+                            settingRef.child(uid).child("age_search").child("min").setValue("18");
                             mDatabase.child("Token").child(uid).setValue(FirebaseInstanceId.getInstance().getToken());
+                            mDatabase.child("RedBadge").child(uid).setValue("0");
                             progress.dismiss();
 
-                            Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
-                             myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
-                            LoginActivity.this.startActivity(myIntent);
+                            //Intent myIntent = new Intent(LoginActivity.this, AppActivity.class);
+                            Intent myIntent = new Intent(LoginActivity.this, DatePickerActivity.class);
+                            myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            LoginActivity.this.startActivityForResult(myIntent, 0);
+                            overridePendingTransition(0,0);
                             finish();
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -227,5 +239,7 @@ public class LoginActivity extends AppCompatActivity {
         request.setParameters(parameters);
         request.executeAsync();
     }
+
+
 
 }

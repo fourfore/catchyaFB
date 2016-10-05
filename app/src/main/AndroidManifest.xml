@@ -45,21 +45,21 @@
         <activity
             android:name=".Activity.AppActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".Activity.SettingActivity"></activity>
-        <activity android:name=".Activity.ChatActivity"></activity>
+        <activity android:name=".Activity.SettingActivity" />
+        <activity android:name=".Activity.ChatActivity" />
 
         <service android:name=".FirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".FirebaseIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
+        <activity android:name=".Activity.DatePickerActivity"></activity>
     </application>
 
 </manifest>

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.eoss.application.catchya.R;
+import com.eoss.application.catchya.SendNotify;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,6 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by Foremost on 31/8/2559.
@@ -47,11 +50,17 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
         }
     }
 
+//    private DatabaseReference mMessageAdapterUid;
+//    private DatabaseReference mMessageAdapterFid;
+//    private DatabaseReference mChatRoom;
+//    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
+
     private DatabaseReference mMessageAdapterUid;
     private DatabaseReference mMessageAdapterFid;
     private DatabaseReference mChatRoom;
-    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();;
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference mTokenRef;
     Context c;
     //LinkedHashMap<String, String> keys;
     ArrayList<String> keys = new ArrayList<>();
@@ -124,9 +133,29 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
                 mMessageAdapterUid.child(keys.get(position).toString()).child("Unread").setValue(0);
                 mMessageAdapterFid.child(mAuth.getCurrentUser().getUid()).child("ChatRoomId").setValue(mChatRoomId);
                 mMessageAdapterFid.child(mAuth.getCurrentUser().getUid()).child("Unread").setValue(0);
+                mTokenRef = mDatabase.child("Token").child(keys.get(position).toString());
+                mTokenRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        String token = dataSnapshot.getValue().toString();
+                        String message = "You have a new Friend!!!";
+                        String title = "Message";
+                        SendNotify sendNotify = new SendNotify();
+                        sendNotify.sendNotify(message,title,token,mAuth.getCurrentUser().getUid(),"none",getApplicationContext());
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
                 keys.remove(position);
                 notifyDataSetChanged();
+
+
             }
         });
 

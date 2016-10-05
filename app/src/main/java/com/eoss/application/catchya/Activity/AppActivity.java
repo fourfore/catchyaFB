@@ -62,6 +62,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,9 +123,17 @@ public class AppActivity extends AppCompatActivity implements
     private ProgressDialog progressDialog;
     private ValueEventListener mFriendDatabaseV;
     private ChildEventListener mFriendDatabasePopulateV;
+    private DatabaseReference mDatabase;
+    private String userMeID;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        userMeID = mAuth.getCurrentUser().getUid();
+        setAgeInDB();
 
         nearbyAdapter = new NearbyAdapter(AppActivity.this, locationKeyMap);
 
@@ -141,7 +150,7 @@ public class AppActivity extends AppCompatActivity implements
         progressDialog.show();
 
 
-        mAuth = FirebaseAuth.getInstance();
+
 
         if (savedInstanceState != null) {
             //Restore your fragment instance
@@ -428,6 +437,8 @@ public class AppActivity extends AppCompatActivity implements
         settingRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                final int searchMaxAge = Integer.parseInt(dataSnapshot.child("age_search").child("max").getValue().toString());
+                final int searchMinAge = Integer.parseInt(dataSnapshot.child("age_search").child("min").getValue().toString());
                 int radius = Integer.parseInt(dataSnapshot.child("Radius").getValue().toString());
                 final String search_gender = dataSnapshot.child("search_gender").getValue().toString();
                 if (mCurrentLocation != null) {
@@ -438,8 +449,7 @@ public class AppActivity extends AppCompatActivity implements
                     //stopLocationUpdates();
                     geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("Locations"));
                     geoLocation = new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-                    mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
-                    mFriendDatabase.keepSynced(true);
+
 
                     //Save location
                     geoFire.setLocation(mAuth.getCurrentUser().getUid(), new GeoLocation(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
@@ -455,108 +465,36 @@ public class AppActivity extends AppCompatActivity implements
                             //location fkey
                             final String fKey = key;
                             if (fKey != mAuth.getCurrentUser().getUid()) {
-                                mFriendDatabaseV = new ValueEventListener() {
+                                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(fKey);
+                                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-                                        Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
-                                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(fKey);
-                                        userRef.child("Gender").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                String gender= dataSnapshot.getValue().toString();
-                                                if(search_gender.equals("Men")){
-                                                    if(gender.equals("male")){
-                                                        if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
-                                                            Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
-                                                            if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
-                                                                if (!locationKeyMap.containsKey(fKey)) {
-                                                                    Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
-                                                                    locationKeyMap.put(fKey, "Send");
-                                                                    checkAdapter();
-                                                                }
-
-                                                            } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
-                                                                locationKeyMap.remove(fKey);
-                                                                checkAdapter();
-                                                            }
-                                                        } else if (!dataSnapshot.child(fKey).exists()) {
-                                                            if (!locationKeyMap.containsKey(fKey)) {
-
-                                                                Log.d("dataSnapshot", "add not in relation");
-                                                                locationKeyMap.put(fKey, "Null");
-                                                                checkAdapter();
-
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                else if(search_gender.equals("Women")){
-                                                    if(gender.equals("female")){
-                                                        if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
-                                                            Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
-                                                            if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
-                                                                if (!locationKeyMap.containsKey(fKey)) {
-                                                                    Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
-                                                                    locationKeyMap.put(fKey, "Send");
-                                                                    checkAdapter();
-                                                                }
-
-                                                            } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
-                                                                locationKeyMap.remove(fKey);
-                                                                checkAdapter();
-                                                            }
-                                                        } else if (!dataSnapshot.child(fKey).exists()) {
-                                                            if (!locationKeyMap.containsKey(fKey)) {
-
-                                                                Log.d("dataSnapshot", "add not in relation");
-                                                                locationKeyMap.put(fKey, "Null");
-                                                                checkAdapter();
-
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                else if(search_gender.equals("MenAndWomen")){
-                                                        if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
-                                                            Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
-                                                            if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
-                                                                if (!locationKeyMap.containsKey(fKey)) {
-                                                                    Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
-                                                                    locationKeyMap.put(fKey, "Send");
-                                                                    checkAdapter();
-                                                                }
-
-                                                            } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
-                                                                locationKeyMap.remove(fKey);
-                                                                checkAdapter();
-                                                            }
-                                                        } else if (!dataSnapshot.child(fKey).exists()) {
-                                                            if (!locationKeyMap.containsKey(fKey)) {
-
-                                                                Log.d("dataSnapshot", "add not in relation");
-                                                                locationKeyMap.put(fKey, "Null");
-                                                                checkAdapter();
-
-                                                            }
-                                                        }
-
+                                        int nearbyFrindAge = Integer.parseInt(dataSnapshot.child("BD").child("age").getValue().toString());
+                                        if(IsBetweenAgeRange(searchMinAge, searchMaxAge, nearbyFrindAge)){
+                                            String gender= dataSnapshot.child("Gender").getValue().toString();
+                                            if (search_gender.equals("Men")){
+                                                if (gender.equals("male")){
+                                                    checkUser(fKey);
                                                 }
                                             }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
+                                            else if (search_gender.equals("Women")){
+                                                if (gender.equals("female")){
+                                                    checkUser(fKey);
+                                                }
                                             }
-                                        });
+                                            else if (search_gender.equals("MenAndWomen")){
+                                                checkUser(fKey);
+                                            }
+                                        }
+
                                     }
 
                                     @Override
                                     public void onCancelled(DatabaseError databaseError) {
 
                                     }
-                                };
+                                });
 
-                                mFriendDatabase.addValueEventListener(mFriendDatabaseV);
                             }
 
                         }
@@ -584,6 +522,7 @@ public class AppActivity extends AppCompatActivity implements
                         public void onGeoQueryError(DatabaseError error) {
 
                         }
+
                     });
 
 
@@ -651,6 +590,52 @@ public class AppActivity extends AppCompatActivity implements
 
     }
 
+    private void checkUser(String key){
+        final String fKey = key;
+        mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(mAuth.getCurrentUser().getUid());
+        mFriendDatabase.keepSynced(true);
+
+        mFriendDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Log.d("dataSnapshot fkey", dataSnapshot.child(fKey).toString());
+                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("Users").child(fKey);
+
+
+                if (dataSnapshot.child(fKey).exists() && fKey != mAuth.getCurrentUser().getUid()) {
+
+                    Log.d("dataSnapshotfkey", dataSnapshot.child(fKey).toString());
+                    if (dataSnapshot.child(fKey).getValue().equals("Send") && !dataSnapshot.child(fKey).getValue().equals("Receive") && !dataSnapshot.child(fKey).getValue().equals("Friend")) {
+                        if (!locationKeyMap.containsKey(fKey)) {
+                            Log.d("Not receive", dataSnapshot.child(fKey).getValue().toString());
+                            locationKeyMap.put(fKey, "Send");
+                            checkAdapter();
+                        }
+
+                    } else if (dataSnapshot.child(fKey).getValue().equals("Receive")) {
+                        locationKeyMap.remove(fKey);
+                        checkAdapter();
+                    }
+                } else if (!dataSnapshot.child(fKey).exists()) {
+                    if (!locationKeyMap.containsKey(fKey)) {
+
+                        Log.d("dataSnapshot", "add not in relation");
+                        locationKeyMap.put(fKey, "Null");
+                        checkAdapter();
+
+                    }
+                }
+            }
+
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
     private void checkAdapter() {
         if (recyclerView != null) {
 
@@ -814,32 +799,89 @@ public class AppActivity extends AppCompatActivity implements
     protected void onActivityResult(final int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_CANCELED) {
-        final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
-        switch (requestCode) {
-            case REQUEST_CHECK_SETTINGS:
-                switch (resultCode) {
-                    case Activity.RESULT_OK:
-                        startLocationUpdates();
+            final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
+            switch (requestCode) {
+                case REQUEST_CHECK_SETTINGS:
+                    switch (resultCode) {
+                        case Activity.RESULT_OK:
+                            startLocationUpdates();
 
-                        Log.d("RESULT_OK", "RESULT_OK");
-                        // All required changes were successfully made
-                        //FINALLY YOUR OWN METHOD TO GET YOUR USER LOCATION HERE
+                            Log.d("RESULT_OK", "RESULT_OK");
+                            // All required changes were successfully made
+                            //FINALLY YOUR OWN METHOD TO GET YOUR USER LOCATION HERE
 
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        // The user was asked to change settings, but chose not to
+                            break;
+                        case Activity.RESULT_CANCELED:
+                            // The user was asked to change settings, but chose not to
 
-                        Intent myIntent = new Intent(this, LoginActivity.class);
-                        myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(myIntent);
-                        finish();
+                            Intent myIntent = new Intent(this, LoginActivity.class);
+                            myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(myIntent);
+                            finish();
 
-                        break;
-                    default:
-                        break;
-                }
-                break;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
             }
+        }
+    }
+
+
+    //set age in DB from BirthDate
+    private void setAgeInDB(){
+        final DatabaseReference userMeRef = mDatabase.child("Users").child(userMeID);
+        userMeRef.child("BD").child("Date").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String[] date = splitString("/",dataSnapshot.getValue().toString());
+                Log.d("dateSprid",date[0]+" "+date[1]+" "+date[2]);
+                //int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+                int day = Integer.parseInt(date[0]);
+                int month = Integer.parseInt(date[1]);
+                int year = Integer.parseInt(date[2]);
+                String age = getAge(year, month, day);
+                Log.d("dateage",age+"");
+                userMeRef.child("BD").child("age").setValue(age);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private String[] splitString(String spliter, String text){
+        String[] parts = text.split(spliter);
+        return parts;
+    }
+
+    private String getAge(int year, int month, int day){
+        Calendar dob = Calendar.getInstance();
+        Calendar today = Calendar.getInstance();
+
+        dob.set(year, month, day);
+
+        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
+
+        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)){
+            age--;
+        }
+
+        Integer ageInt = new Integer(age);
+        String ageS = ageInt.toString();
+
+        return ageS;
+    }
+
+    private boolean IsBetweenAgeRange(int minAge, int maxAge, int checkAge){
+        if (checkAge >=  minAge && checkAge <= maxAge){
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

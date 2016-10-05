@@ -60,5 +60,7 @@ dependencies {
     compile 'com.crystal:crystalrangeseekbar:1.1.1'
     compile 'com.firebase:geofire-android:2.1.0'
     compile 'com.mcxiaoke.volley:library:1.0.19'
+    compile 'me.leolin:ShortcutBadger:1.1.9@aar'
+    compile 'io.apptik.widget:multislider:1.2'
 }
 apply plugin: 'com.google.gms.google-services'
