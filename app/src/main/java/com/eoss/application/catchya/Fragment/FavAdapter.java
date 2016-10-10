@@ -34,13 +34,15 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
         TextView name;
         ImageView photo;
-        Button goChat;
+        View view;
+        //Button goChat;
 
         FavViewHolder(View itemView) {
             super(itemView);
             name = (TextView)itemView.findViewById(R.id.fav_list_name);
             photo = (ImageView) itemView.findViewById(R.id.fav_person_photo);
-            goChat = (Button) itemView.findViewById(R.id.fav_chat_button);
+            view = itemView;
+            //goChat = (Button) itemView.findViewById(R.id.fav_chat_button);
         }
     }
 
@@ -93,7 +95,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
             }
         });
 
-        personViewHolder.goChat.setOnClickListener(new View.OnClickListener() {
+        personViewHolder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(c, ChatActivity.class);

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 
+import com.eoss.application.catchya.DividerItemDecoration;
 import com.eoss.application.catchya.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -64,6 +65,7 @@ public class FavFragment extends Fragment {
             }
         };
         recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
         recyclerView.setHasFixedSize(true);
         adapter = new FavAdapter(getActivity(), receiveKeys);
         recyclerView.setAdapter(adapter);

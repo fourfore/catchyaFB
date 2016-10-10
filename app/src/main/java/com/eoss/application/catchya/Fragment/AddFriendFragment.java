@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.eoss.application.catchya.DividerItemDecoration;
 import com.eoss.application.catchya.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -66,6 +67,7 @@ public class AddFriendFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
         adapter = new AddFriendAdapter(getActivity(), receiveKeys);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity()));
         recyclerView.setAdapter(adapter);
         DatabaseReference myFriendRef = mDatabase.child("Friends").child(mAuth.getCurrentUser().getUid());
         myFriendRef.keepSynced(true);

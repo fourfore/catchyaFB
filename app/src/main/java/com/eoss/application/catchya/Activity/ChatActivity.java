@@ -57,6 +57,7 @@ public class ChatActivity extends AppCompatActivity {
     private ArrayList<DataSnapshot> messages;
     private DatabaseReference mAdapterUser;
     private DatabaseReference mClearRedbadge;
+    private DatabaseReference mTokenRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,13 +90,14 @@ public class ChatActivity extends AppCompatActivity {
                 redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
-                        totalBadge = totalBadge-unRead;
-                        redBadge.setValue(totalBadge+"");
-                        Log.d("red-Total",totalBadge+"");
+                        if(dataSnapshot.getValue() != null) {
+                            int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+                            totalBadge = totalBadge - unRead;
+                            redBadge.setValue(totalBadge + "");
+                            Log.d("red-Total", totalBadge + "");
 
-                        ShortcutBadger.applyCount(ChatActivity.this, totalBadge);
-
+                            ShortcutBadger.applyCount(ChatActivity.this, totalBadge);
+                        }
                         mAdapterUser.setValue("0");
                     }
 
@@ -174,14 +176,23 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     });
                     textChat.setText("");
+                    mTokenRef = mDatabase.child("Token").child(idFriend.toString());
+                    mTokenRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String token = dataSnapshot.getValue().toString();
+                            String message = "New message";
+                            String title = "Message";
+                            SendNotify sendNotify = new SendNotify();
+                            sendNotify.sendNotify(message,title,token,mAuth.getCurrentUser().getUid(),idFriend,getApplicationContext());
+                        }
 
-                    String token = FirebaseInstanceId.getInstance().getToken();
-                    String message = "New message";
-                    String title = "Message";
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
+                        }
+                    });
 
-                    SendNotify sendNotify = new SendNotify();
-                    sendNotify.sendNotify(message,title,token,mAuth.getCurrentUser().getUid(),idFriend,getApplicationContext());
 
                 }
             }
@@ -227,12 +238,14 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
+                final int unRead = Integer.parseInt(dataSnapshot.getValue().toString());
                 final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(uid);
                 redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
-                        totalBadge = totalBadge-1;
+
+                        totalBadge = totalBadge - unRead ;
                         redBadge.setValue(totalBadge+"");
 
 
@@ -247,7 +260,6 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                 });
-                mAdapterUser.setValue("0");
 
             }
 
