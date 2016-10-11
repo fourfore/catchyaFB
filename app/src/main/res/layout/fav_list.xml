@@ -44,9 +44,15 @@
                 android:text="last message"
                 android:textSize="14sp"
                 android:textColor="@color/textmessage"/>
-
         </LinearLayout>
-
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/menu_popup"
+        android:src="@drawable/ic_popup_menu_fav"
+        android:layout_alignParentRight="true"
+        android:background="@null"
+        android:layout_centerVertical="true" />
 
     </RelativeLayout>
 

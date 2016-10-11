@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -58,12 +59,17 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference mAdapterUser;
     private DatabaseReference mClearRedbadge;
     private DatabaseReference mTokenRef;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_chat);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Chat");
 
         messages = new ArrayList<>();
 
@@ -80,7 +86,19 @@ public class ChatActivity extends AppCompatActivity {
 
         idFriend = intent.getStringExtra("user_id");
         uid = mAuth.getCurrentUser().getUid().toString();
+        DatabaseReference userRef = mDatabase.child("Users").child(idFriend );
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String friendName = dataSnapshot.child("Name").getValue().toString();
+                getSupportActionBar().setTitle(friendName);
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
         mClearRedbadge = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(uid).child(idFriend).child("Unread");
         mClearRedbadge.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

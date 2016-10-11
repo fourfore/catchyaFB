@@ -3,6 +3,7 @@ package com.eoss.application.catchya.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
@@ -25,6 +26,7 @@ public class SettingActivity extends AppCompatActivity {
     private TextView textView;
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
+    private Toolbar toolbar;
 
     private SwitchCompat menSwitch;
     private SwitchCompat womenSwitch;
@@ -32,6 +34,10 @@ public class SettingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Setting");
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         seekbarDistance = (SeekBar) findViewById(R.id.slider_distance2);

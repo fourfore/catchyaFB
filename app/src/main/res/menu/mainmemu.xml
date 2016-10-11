@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/appProfile"
+        android:title="@string/option1"></item>
+    <item
+        android:id="@+id/appSetting"
+        android:title="@string/option2"></item>
+    <item
+        android:id="@+id/appLogout"
+        android:title="@string/option3"></item>
+</menu>

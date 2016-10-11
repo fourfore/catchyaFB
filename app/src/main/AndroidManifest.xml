@@ -45,9 +45,18 @@
         <activity
             android:name=".Activity.AppActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".Activity.SettingActivity" />
-        <activity android:name=".Activity.ChatActivity" />
 
+        <activity android:name=".Activity.SettingActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".Activity.AppActivity" />
+        </activity>
+
+        <activity android:name=".Activity.ChatActivity" >
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".Activity.AppActivity" />
+        </activity>
         <service android:name=".FirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -59,7 +68,12 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".Activity.DatePickerActivity"></activity>
+        <activity android:name=".Activity.DatePickerActivity" />
+        <activity android:name=".Activity.ProfileActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Activity.AppActivity" />
+        </activity>
     </application>
 
 </manifest>

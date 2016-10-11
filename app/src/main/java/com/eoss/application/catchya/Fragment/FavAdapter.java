@@ -2,12 +2,17 @@ package com.eoss.application.catchya.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,6 +40,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         TextView name;
         ImageView photo;
         View view;
+        ImageButton imageButton;
         //Button goChat;
 
         FavViewHolder(View itemView) {
@@ -42,8 +48,11 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
             name = (TextView)itemView.findViewById(R.id.fav_list_name);
             photo = (ImageView) itemView.findViewById(R.id.fav_person_photo);
             view = itemView;
+            imageButton = (ImageButton) itemView.findViewById(R.id.menu_popup);
+
             //goChat = (Button) itemView.findViewById(R.id.fav_chat_button);
         }
+
     }
 
     private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();;
@@ -106,6 +115,13 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
             }
         });
 
+        personViewHolder.imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopup(personViewHolder.imageButton,position);
+            }
+        });
+
     }
 
     @Override
@@ -118,5 +134,29 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         notifyDataSetChanged();
     }
 
+    private void showPopup(View view, final int position) {
+        // pass the imageview id
+        //View menuItemView = view.findViewById(R.id.btn_song_list_more);
+        PopupMenu popup = new PopupMenu(view.getContext(), view);
+        MenuInflater inflate = popup.getMenuInflater();
+        inflate.inflate(R.menu.item_menu, popup.getMenu());
+
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.edit:
+                        Log.d("popupmenu-> ","edit");
+                        return true;
+                    case R.id.delete:
+                        Log.d("popupmenu-> ","delete");
+                        return  true;
+                }
+                return false;
+            }
+        });
+        popup.show();
+    }
 
 }
