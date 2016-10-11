@@ -1,49 +1,130 @@
-<LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    >
+    android:minHeight="72dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:layout_height="90dp"
+    android:background="?android:attr/selectableItemBackground">
 
-    <!--<ImageView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/nearby_person_photo"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:layout_marginRight="16dp"-->
-        <!--/>-->
     <de.hdodenhof.circleimageview.CircleImageView
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:contentDescription="profile"
         android:id="@+id/nearby_person_photo"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:layout_marginRight="16dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        />
+        android:layout_alignParentLeft="false"
+        android:layout_centerVertical="true"
+        android:layout_width="80dp"
+        android:layout_height="80dp" />
 
-    <TextView
-        android:id="@+id/nearby_list_name"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/textview_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"/>
+        android:orientation="vertical"
+        android:layout_marginLeft="12dp"
+        android:layout_centerVertical="true"
+        tools:layout_alignWithParentIfMissing="false"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_toRightOf="@+id/nearby_person_photo">
 
-    <!--<TextView-->
-        <!--android:id="@+id/nearby_list_gender"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_weight="1" />-->
+        <TextView
+            android:id="@+id/nearby_list_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="friend name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="16sp" />
 
+    </LinearLayout>
     <ToggleButton
         android:id="@+id/requestToggle"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:textSize="0sp"
         android:background="@drawable/nearby_toggle_image"
-        />
-</LinearLayout>
+
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+
+
+</RelativeLayout>
+
+
+
+    <!--<LinearLayout-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:orientation="horizontal"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:paddingTop="10dp"-->
+    <!--android:paddingBottom="10dp"-->
+    <!--&gt;-->
+
+    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--android:id="@+id/fav_person_photo"-->
+    <!--android:layout_width="65dp"-->
+    <!--android:layout_height="65dp"-->
+    <!--android:layout_marginRight="16dp"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_alignParentLeft="true"-->
+    <!--/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/fav_list_name"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_weight="1"/>-->
+
+    <!--<Button-->
+    <!--style="?android:attr/buttonStyleSmall"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Chat"-->
+    <!--android:id="@+id/fav_chat_button" />-->
+
+
+    <!--</LinearLayout>-->
+
+
+
+    <!--<LinearLayout-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:orientation="horizontal"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:paddingTop="10dp"-->
+    <!--android:paddingBottom="10dp"-->
+    <!--&gt;-->
+
+    <!---->
+    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/nearby_person_photo"-->
+        <!--android:layout_width="65dp"-->
+        <!--android:layout_height="65dp"-->
+        <!--android:layout_marginRight="16dp"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--/>-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/nearby_list_name"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1"/>-->
+
+    <!---->
+
+    <!--<ToggleButton-->
+        <!--android:id="@+id/requestToggle"-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:paddingLeft="16dp"-->
+        <!--android:paddingRight="16dp"-->
+        <!--android:textSize="0sp"-->
+        <!--android:background="@drawable/nearby_toggle_image"-->
+        <!--/>-->
+<!--</LinearLayout>-->

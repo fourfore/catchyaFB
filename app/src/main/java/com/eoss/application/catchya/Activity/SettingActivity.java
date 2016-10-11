@@ -28,11 +28,14 @@ public class SettingActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private Toolbar toolbar;
 
+    private final Boolean[] b = new Boolean[1];
+
     private SwitchCompat menSwitch;
     private SwitchCompat womenSwitch;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        b[0] = true;
         setContentView(R.layout.activity_setting);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,7 +61,7 @@ public class SettingActivity extends AppCompatActivity {
 
             }
         });
-        final Boolean[] b = new Boolean[1];
+
         settingRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -173,10 +176,10 @@ public class SettingActivity extends AppCompatActivity {
         searchAgeRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int max = Integer.parseInt(dataSnapshot.child("min").getValue().toString());
+                int max = Integer.parseInt(dataSnapshot.child("max").getValue().toString());
                 int min = Integer.parseInt(dataSnapshot.child("min").getValue().toString());
                 ageSlider.getThumb(0).setValue(Integer.parseInt(dataSnapshot.child("min").getValue().toString()));
-                ageSlider.getThumb(0).setValue(Integer.parseInt(dataSnapshot.child("max").getValue().toString()));
+                ageSlider.getThumb(1).setValue(Integer.parseInt(dataSnapshot.child("max").getValue().toString()));
                 minTextView.setText(dataSnapshot.child("min").getValue().toString());
                 maxTextView.setText(dataSnapshot.child("max").getValue().toString());
             }

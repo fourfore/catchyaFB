@@ -32,7 +32,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="friend name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:paddingLeft="3dp"
+                android:textSize="16sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

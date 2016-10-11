@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eoss.application.catchya.Activity.AppActivity;
+import com.eoss.application.catchya.DividerItemDecoration;
 import com.eoss.application.catchya.R;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -388,7 +389,8 @@ public class NearbyFragment extends Fragment implements
                         @Override
                         public void onChildRemoved(DataSnapshot dataSnapshot) {
                             System.out.println("dataSnapshot add onChildRemoved " + dataSnapshot.getKey());
-                            locationKeyMap.remove(dataSnapshot.getKey());
+                            //locationKeyMap.remove(dataSnapshot.getKey());
+                            locationKeyMap.put(dataSnapshot.getKey(),"null");
                             checkAdapter();
 
                         }

@@ -24,78 +24,79 @@
     <LinearLayout
         android:id="@+id/activity_profile"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         tools:context="com.eoss.application.catchya.Activity.ProfileActivity">
 
         <ImageButton
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:scaleType="fitXY"
             android:id="@+id/person_photo"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="16dp"/>
+            android:layout_gravity="center_horizontal"
+            android:background="@null"
+            android:layout_marginTop="25dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/person_photo"
-            android:layout_alignParentTop="true"
-            android:orientation="vertical"
-            android:id="@+id/wrapper"
-            >
-            <ViewSwitcher
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/mSwitchProfileEdit"
 
-                >
 
-                <RelativeLayout
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/profileTextView">
+                    android:id="@+id/profileTextView"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/person_name"
                         android:textSize="20sp"
-                        android:text="name" />
+                        android:text="name"
+                        android:textColor="@color/primary_text"
+                        android:textStyle="normal|bold" />
+
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:id="@+id/person_email"-->
+                        <!--android:text="email"-->
+                        <!--android:textColor="@color/primary_text"-->
+                        <!--android:textSize="16sp"/>-->
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/person_email"
-                        android:layout_below="@+id/person_name"
-                        android:text="email" />
+                        android:id="@+id/person_gender"
+                        android:text="gender"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"/>
 
-                </RelativeLayout>
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:id="@+id/person_bd"-->
+                        <!--android:text="bd"-->
+                        <!--android:textColor="@color/primary_text"-->
+                        <!--android:textSize="16sp"/>-->
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/profileTextEdit"
-                    >
-
-                    <EditText
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/person_name_edit"
-                        android:textSize="20sp"
-                        android:hint="Input name" />
-                    <EditText
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/person_email_edit"
-                        android:layout_below="@+id/person_name_edit"
-                        />
+                        android:id="@+id/person_age"
+                        android:text="age"
+                        android:textColor="@color/primary_text"
+                        android:textSize="16sp"/>
 
-                </RelativeLayout>
+                </LinearLayout>
 
-            </ViewSwitcher>
 
-        </LinearLayout>
+
+
+
+
+
+
     </LinearLayout>
 </LinearLayout>

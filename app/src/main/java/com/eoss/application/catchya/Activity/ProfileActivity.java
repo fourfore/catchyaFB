@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.eoss.application.catchya.CircleTransform;
 import com.eoss.application.catchya.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,9 +34,9 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private ViewSwitcher viewSwitcher;
-    private RelativeLayout myFirstView;
+    private LinearLayout myFirstView;
     private RelativeLayout mySecondView;
-    private LinearLayout wrapper;
+    //private LinearLayout wrapper;
     private ImageButton profilePic;
     private StorageReference mStorage;
     private static final int GALLERY_REQUEST = 1;
@@ -61,9 +62,12 @@ public class ProfileActivity extends AppCompatActivity {
     public void onStart() {
         profilePic = (ImageButton) findViewById(R.id.person_photo);
         final TextView name = (TextView) findViewById(R.id.person_name);
-        final TextView email = (TextView) findViewById(R.id.person_email);
-        final EditText editName = (EditText) findViewById(R.id.person_name_edit);
-        final EditText editEmail = (EditText) findViewById(R.id.person_email_edit);
+        //final TextView email = (TextView) findViewById(R.id.person_email);
+        final TextView gender = (TextView) findViewById(R.id.person_gender);
+        //final TextView bd = (TextView) findViewById(R.id.person_bd);
+        final TextView age = (TextView) findViewById(R.id.person_age);
+//        final EditText editName = (EditText) findViewById(R.id.person_name_edit);
+//        final EditText editEmail = (EditText) findViewById(R.id.person_email_edit);
 
         super.onStart();
         DatabaseReference mCurrentUser = mDatabase.child("Users").child(mAuth.getCurrentUser().getUid());
@@ -72,10 +76,11 @@ public class ProfileActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("ForemostonDataChange", dataSnapshot.toString());
                 name.setText(dataSnapshot.child("Name").getValue().toString());
-                email.setText(dataSnapshot.child("Email").getValue().toString());
-                editName.setText(dataSnapshot.child("Name").getValue().toString());
-                editEmail.setText(dataSnapshot.child("Email").getValue().toString());
-                Picasso.with(context).load(dataSnapshot.child("Pic").getValue().toString()).into(profilePic);
+                gender.setText(dataSnapshot.child("Gender").getValue().toString());
+                age.setText(dataSnapshot.child("BD").child("age").getValue().toString());
+//                editName.setText(dataSnapshot.child("Name").getValue().toString());
+//                editEmail.setText(dataSnapshot.child("Email").getValue().toString());
+                Picasso.with(context).load(dataSnapshot.child("Pic").getValue().toString()).transform(new CircleTransform()).into(profilePic);
 
             }
 
@@ -86,25 +91,25 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
 
-        viewSwitcher = (ViewSwitcher) findViewById(R.id.mSwitchProfileEdit);
+        //viewSwitcher = (ViewSwitcher) findViewById(R.id.mSwitchProfileEdit);
 
-        myFirstView = (RelativeLayout) findViewById(R.id.profileTextView);
-        mySecondView = (RelativeLayout) findViewById(R.id.profileTextEdit);
-        wrapper = (LinearLayout) findViewById(R.id.wrapper);
-        wrapper.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View arg0) {
-                // TODO Auto-generated method stub
-                if (viewSwitcher.getCurrentView() != myFirstView) {
-
-                    viewSwitcher.showPrevious();
-                } else if (viewSwitcher.getCurrentView() != mySecondView) {
-
-                    viewSwitcher.showNext();
-                }
-            }
-        });
+        myFirstView = (LinearLayout) findViewById(R.id.profileTextView);
+        //mySecondView = (RelativeLayout) findViewById(R.id.profileTextEdit);
+        //wrapper = (LinearLayout) findViewById(R.id.wrapper);
+//        wrapper.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View arg0) {
+//                // TODO Auto-generated method stub
+//                if (viewSwitcher.getCurrentView() != myFirstView) {
+//
+//                    viewSwitcher.showPrevious();
+//                } else if (viewSwitcher.getCurrentView() != mySecondView) {
+//
+//                    viewSwitcher.showNext();
+//                }
+//            }
+//        });
 
 
         profilePic.setOnClickListener(new View.OnClickListener() {
