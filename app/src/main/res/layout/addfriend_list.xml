@@ -3,6 +3,7 @@
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -46,7 +47,9 @@
                     android:id="@+id/addFriend_acceptButton"
                     android:text="add"
                     android:maxWidth="88dp"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    />
 
                 <Button
                     android:layout_width="wrap_content"
@@ -54,7 +57,8 @@
                     android:id="@+id/addFriend_rejectButton"
                     android:text="delete"
                     android:minWidth="88dp"
-                    android:minHeight="36dp" />
+                    android:minHeight="36dp"
+                    android:theme="@style/AppTheme.Button"/>
 
             </LinearLayout>
 

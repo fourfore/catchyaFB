@@ -80,7 +80,7 @@ public class ProfileActivity extends AppCompatActivity {
                 age.setText(dataSnapshot.child("BD").child("age").getValue().toString());
 //                editName.setText(dataSnapshot.child("Name").getValue().toString());
 //                editEmail.setText(dataSnapshot.child("Email").getValue().toString());
-                Picasso.with(context).load(dataSnapshot.child("Pic").getValue().toString()).transform(new CircleTransform()).into(profilePic);
+                Picasso.with(context).load(dataSnapshot.child("Pic").getValue().toString()).fit().centerCrop().transform(new CircleTransform()).into(profilePic);
 
             }
 

@@ -96,7 +96,7 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                     personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
-                    Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+                    Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).fit().centerCrop().into(personViewHolder.photo);
 
 
             }
@@ -142,7 +142,7 @@ public class AddFriendAdapter extends RecyclerView.Adapter<AddFriendAdapter.AddF
                         String message = "You have a new Friend!!!";
                         String title = "Message";
                         SendNotify sendNotify = new SendNotify();
-                        sendNotify.sendNotify(message,title,token,mAuth.getCurrentUser().getUid(),"none",getApplicationContext());
+                        sendNotify.sendNotify(message,title,token,mAuth.getCurrentUser().getUid(),"none",getApplicationContext(),"none");
 
                     }
 

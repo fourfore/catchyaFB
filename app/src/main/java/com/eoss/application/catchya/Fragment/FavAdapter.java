@@ -38,6 +38,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
     public static class FavViewHolder extends RecyclerView.ViewHolder {
 
         TextView name;
+        TextView lastMessage;
         ImageView photo;
         View view;
         ImageButton imageButton;
@@ -46,6 +47,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         FavViewHolder(View itemView) {
             super(itemView);
             name = (TextView)itemView.findViewById(R.id.fav_list_name);
+            lastMessage = (TextView)itemView.findViewById(R.id.fav_last_message);
             photo = (ImageView) itemView.findViewById(R.id.fav_person_photo);
             view = itemView;
             imageButton = (ImageButton) itemView.findViewById(R.id.menu_popup);
@@ -94,7 +96,50 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
-                Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+                DatabaseReference messageAdapterRef = mDatabase.child("MessageAdapter").child(mAuth.getCurrentUser().getUid()).child(dataSnapshot.getKey().toString());
+                messageAdapterRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()) {
+
+                            String chatId = dataSnapshot.child("ChatRoomId").getValue().toString();
+                            DatabaseReference chatRoom = mDatabase.child("ChatRoom").child(chatId).child("Message");
+                            chatRoom.limitToLast(1).addChildEventListener(new ChildEventListener() {
+                                @Override
+                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                    Log.d("Message",dataSnapshot.child("Text").getValue().toString());
+                                    personViewHolder.lastMessage.setText(dataSnapshot.child("Text").getValue().toString());
+                                }
+
+                                @Override
+                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                }
+
+                                @Override
+                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).fit().centerCrop().into(personViewHolder.photo);
 
             }
 
@@ -146,11 +191,13 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()){
-                    case R.id.edit:
-                        Log.d("popupmenu-> ","edit");
-                        return true;
                     case R.id.delete:
                         Log.d("popupmenu-> ","delete");
+                        DatabaseReference friend = FirebaseDatabase.getInstance().getReference().child("Friends");
+                        friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position).toString()).removeValue();
+                        friend.child(keys.get(position).toString()).child(mAuth.getCurrentUser().getUid()).removeValue();
+                        keys.remove(position);
+                        notifyDataSetChanged();
                         return  true;
                 }
                 return false;

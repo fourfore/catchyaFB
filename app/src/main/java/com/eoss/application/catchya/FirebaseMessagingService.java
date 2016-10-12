@@ -40,11 +40,13 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
-                totalBadge++;
-                databaseReference.setValue(totalBadge+"");
+                if(dataSnapshot.exists()) {
+                    int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+                    totalBadge++;
+                    databaseReference.setValue(totalBadge + "");
 
-                ShortcutBadger.applyCount(FirebaseMessagingService.this, totalBadge);
+                    ShortcutBadger.applyCount(FirebaseMessagingService.this, totalBadge);
+                }
             }
 
             @Override
@@ -67,11 +69,13 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
 
         Log.d("Fuid",remoteMessage.getData().get("fUid").toString());
         Intent intent;
-        if(remoteMessage.getData().get("title").toString().equals("Chat")) {
+
+        if(remoteMessage.getData().get("sendFrom").toString().equals("chat")) {
             intent = new Intent(this, ChatActivity.class);
             //intent.putExtra("uid",uid);
 
-            intent.putExtra("user_id",remoteMessage.getData().get("fUid").toString());
+            intent.putExtra("user_id",remoteMessage.getData().get("uid").toString());
+
         }
         else {
             intent = new Intent(this, MainActivity.class);

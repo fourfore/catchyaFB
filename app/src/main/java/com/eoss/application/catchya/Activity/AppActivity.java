@@ -72,6 +72,10 @@ public class AppActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         userMeID = mAuth.getCurrentUser().getUid();
@@ -133,6 +137,20 @@ public class AppActivity extends AppCompatActivity {
         viewPager.setOffscreenPageLimit(2);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            if (extras.containsKey("backCheck")) {
+                Log.d("backCheck",extras.getString("backCheck"));
+                if(extras.getString("backCheck").equals("chatActivity")){
+                    viewPager.setCurrentItem(1);
+                }
+                else {
+                    viewPager.setCurrentItem(0);
+                }
+            }
+        }
         //viewPager.setCurrentItem(1);
 
         //toolbar.setTitle("Nearby");

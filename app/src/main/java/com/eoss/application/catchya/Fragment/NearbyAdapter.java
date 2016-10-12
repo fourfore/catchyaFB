@@ -94,7 +94,7 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
-                Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).into(personViewHolder.photo);
+                Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).fit().centerCrop().into(personViewHolder.photo);
                 personViewHolder.requestToggle.setText("Send Request");
 
                 if((new ArrayList<String>(keys.values())).get(position).toString().equals("Send")){

@@ -21,7 +21,7 @@ import java.util.Map;
  */
 
 public class SendNotify extends Application{
-    public void sendNotify(String message, String title, String token,String uid,String fUid, Context context){
+    public void sendNotify(String message, String title, String token,String uid,String fUid, Context context,String from){
 
         final String mMessage = message;
         final String mTitle = title;
@@ -29,6 +29,8 @@ public class SendNotify extends Application{
         final String mUid = uid;
         final String mFuid = fUid;
         final Context mContext = context;
+        final String mFrom = from;
+
         RequestQueue mRequestQueue = Volley.newRequestQueue(mContext);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://catchya.96.lt/send_notification.php",
                 new Response.Listener<String>() {
@@ -52,6 +54,7 @@ public class SendNotify extends Application{
                 params.put("token",mToken);
                 params.put("uid",mUid);
                 params.put("fUid",mFuid);
+                params.put("sendFrom",mFrom);
                 return params;
             }
 
