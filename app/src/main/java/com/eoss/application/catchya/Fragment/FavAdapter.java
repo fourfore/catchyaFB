@@ -29,6 +29,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import me.leolin.shortcutbadger.ShortcutBadger;
+
 /**
  * Created by Foremost on 31/8/2559.
  */
@@ -196,6 +198,42 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
                         DatabaseReference friend = FirebaseDatabase.getInstance().getReference().child("Friends");
                         friend.child(mAuth.getCurrentUser().getUid()).child(keys.get(position).toString()).removeValue();
                         friend.child(keys.get(position).toString()).child(mAuth.getCurrentUser().getUid()).removeValue();
+
+                        final DatabaseReference mAdapterUser = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(mAuth.getCurrentUser().getUid()).child(keys.get(position).toString()).child("Unread");
+                        mAdapterUser.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                final int unRead = Integer.parseInt(dataSnapshot.getValue().toString());
+                                final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(mAuth.getCurrentUser().getUid());
+                                redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+
+                                        totalBadge = totalBadge - unRead ;
+                                        redBadge.setValue(totalBadge+"");
+
+
+                                        ShortcutBadger.applyCount(c, totalBadge);
+
+                                        mAdapterUser.setValue("0");
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
                         keys.remove(position);
                         notifyDataSetChanged();
                         return  true;

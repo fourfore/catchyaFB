@@ -61,6 +61,9 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference mTokenRef;
     private Toolbar toolbar;
     private String friendName;
+    private ValueEventListener valueEventListener;
+    private ChildEventListener childEventListener;
+    private DatabaseReference checkFriendStatus;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -257,7 +260,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         mAdapterUser = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(uid).child(idFriend).child("Unread");
-        mAdapterUser.addValueEventListener(new ValueEventListener() {
+        valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -290,8 +293,46 @@ public class ChatActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
 
+        checkFriendStatus = mDatabase.child("Friends").child(uid);
+        childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("Remove",dataSnapshot.toString());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("Remove:remove",dataSnapshot.getKey());
+                if (dataSnapshot.getKey().equals(idFriend)) {
+
+                    Intent intent = new Intent(ChatActivity.this, AppActivity.class);
+                    intent.putExtra("backCheck", "chatActivity");
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivityForResult(intent, 0);
+                    overridePendingTransition(0, 0);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        checkFriendStatus.addChildEventListener(childEventListener);
+        mAdapterUser.addValueEventListener(valueEventListener);
     }
 
     @Override
@@ -303,5 +344,12 @@ public class ChatActivity extends AppCompatActivity {
         startActivityForResult(intent, 0);
         overridePendingTransition(0,0);
         finish();
+    }
+
+    @Override
+    protected void onStop() {
+        mAdapterUser.removeEventListener(valueEventListener);
+        checkFriendStatus.removeEventListener(childEventListener);
+        super.onStop();
     }
 }

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.eoss.application.catchya.Activity.AppActivity;
+import com.eoss.application.catchya.Activity.ChatActivity;
 import com.eoss.application.catchya.DividerItemDecoration;
 import com.eoss.application.catchya.R;
 import com.firebase.geofire.GeoFire;
@@ -392,6 +393,8 @@ public class NearbyFragment extends Fragment implements
                             locationKeyMap.remove(dataSnapshot.getKey());
                             //locationKeyMap.put(dataSnapshot.getKey(),"null");
                             checkAdapter();
+                            Toast.makeText(getActivity(), "Your friends has remove you from friends",
+                                    Toast.LENGTH_LONG).show();
 
                         }
 
