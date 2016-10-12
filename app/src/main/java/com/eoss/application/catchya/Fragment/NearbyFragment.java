@@ -389,8 +389,8 @@ public class NearbyFragment extends Fragment implements
                         @Override
                         public void onChildRemoved(DataSnapshot dataSnapshot) {
                             System.out.println("dataSnapshot add onChildRemoved " + dataSnapshot.getKey());
-                            //locationKeyMap.remove(dataSnapshot.getKey());
-                            locationKeyMap.put(dataSnapshot.getKey(),"null");
+                            locationKeyMap.remove(dataSnapshot.getKey());
+                            //locationKeyMap.put(dataSnapshot.getKey(),"null");
                             checkAdapter();
 
                         }
