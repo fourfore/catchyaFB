@@ -393,8 +393,7 @@ public class NearbyFragment extends Fragment implements
                             locationKeyMap.remove(dataSnapshot.getKey());
                             //locationKeyMap.put(dataSnapshot.getKey(),"null");
                             checkAdapter();
-                            Toast.makeText(getActivity(), "Your friends has remove you from friends",
-                                    Toast.LENGTH_LONG).show();
+
 
                         }
 

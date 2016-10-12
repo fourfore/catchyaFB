@@ -311,7 +311,8 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d("Remove:remove",dataSnapshot.getKey());
                 if (dataSnapshot.getKey().equals(idFriend)) {
-
+                    Toast.makeText(ChatActivity.this, "Your friends has remove you from friends",
+                            Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(ChatActivity.this, AppActivity.class);
                     intent.putExtra("backCheck", "chatActivity");
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_CLEAR_TASK);
