@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(android.view.View v) {
 
-                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email","public_profile", "user_friends", "user_birthday" , "friends_birthday"));
+                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email","public_profile", "user_friends"));
             }
         });
     }
