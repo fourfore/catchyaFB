@@ -2,6 +2,7 @@ package com.eoss.application.catchya.Activity;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -43,14 +44,15 @@ public class AppActivity extends AppCompatActivity {
     //firebase variable
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference mDatabase;
+    private String userMeID;
 
     // Fragment Variable
-    //private ProfileFragment profileFragment;
     private NearbyFragment nearbyFragment;
     private FavFragment favFragment;
     private AddFriendFragment addFriendFragment;
-    //private SettingFragment settingFragment;
 
+    // layout Variable
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -65,15 +67,11 @@ public class AppActivity extends AppCompatActivity {
     private boolean flag = true;
 
 
-    private DatabaseReference mDatabase;
-    private String userMeID;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -169,6 +167,7 @@ public class AppActivity extends AppCompatActivity {
                     String refreshedToken = FirebaseInstanceId.getInstance().getToken();
                     mDatabase.child("Token").child(mAuth.getCurrentUser().getUid()).setValue(refreshedToken);
                 } else {
+
                     Intent myIntent = new Intent(AppActivity.this, MainActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     AppActivity.this.startActivity(myIntent);
@@ -292,6 +291,7 @@ public class AppActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -348,6 +348,7 @@ public class AppActivity extends AppCompatActivity {
 
     //set age in DB from BirthDate
     private void setAgeInDB(){
+
         final DatabaseReference userMeRef = mDatabase.child("Users").child(userMeID);
         userMeRef.child("BD").child("Date").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -392,4 +393,6 @@ public class AppActivity extends AppCompatActivity {
 
         return ageS;
     }
+
+
 }

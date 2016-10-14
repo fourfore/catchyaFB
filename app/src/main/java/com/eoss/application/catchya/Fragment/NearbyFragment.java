@@ -94,7 +94,7 @@ public class NearbyFragment extends Fragment implements
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     private ProgressDialog progressDialog;
-
+    private Boolean progressFlag = true;
     public NearbyFragment() {
         // Required empty public constructor
     }
@@ -105,10 +105,7 @@ public class NearbyFragment extends Fragment implements
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mAuth = FirebaseAuth.getInstance();
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setTitle("Loading data");
-        progressDialog.setMessage("Please wait for awhile ...");
-
+        showProgress();
         return inflater.inflate(R.layout.fragment_nearby, container, false);
 
     }
@@ -349,9 +346,8 @@ public class NearbyFragment extends Fragment implements
 
                         @Override
                         public void onGeoQueryReady() {
-
                             Log.d("Ready", "Fire");
-
+                            showProgress();
                         }
 
                         @Override
@@ -582,6 +578,7 @@ public class NearbyFragment extends Fragment implements
     @Override
     public void onPause() {
         super.onPause();
+        showProgress();
         // Stop location updates to save battery, but don't disconnect the GoogleApiClient object.
         if (mGoogleApiClient.isConnected()) {
             stopLocationUpdates();
@@ -591,7 +588,7 @@ public class NearbyFragment extends Fragment implements
     @Override
     public void onStop() {
         mGoogleApiClient.disconnect();
-
+        showProgress();
         super.onStop();
     }
     private boolean IsBetweenAgeRange(int minAge, int maxAge, int checkAge){
@@ -600,6 +597,19 @@ public class NearbyFragment extends Fragment implements
         }
         else {
             return false;
+        }
+    }
+    private void showProgress(){
+
+        if (progressDialog != null && progressDialog.isShowing()) {
+
+            progressDialog.dismiss();
+        }else if (progressFlag){
+            progressFlag = false;
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setTitle("Searching Friends");
+            progressDialog.setMessage("Please wait...");
+            progressDialog.show();
         }
     }
 }

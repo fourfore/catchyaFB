@@ -234,6 +234,41 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
                             }
                         });
 
+                        final DatabaseReference mAdapterFriend = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(keys.get(position).toString()).child(mAuth.getCurrentUser().getUid()).child("Unread");
+                        mAdapterFriend.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                final int unRead = Integer.parseInt(dataSnapshot.getValue().toString());
+                                final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(keys.get(position).toString());
+                                redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+
+                                        totalBadge = totalBadge - unRead ;
+                                        redBadge.setValue(totalBadge+"");
+
+
+                                        ShortcutBadger.applyCount(c, totalBadge);
+
+                                        mAdapterUser.setValue("0");
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+
+                                });
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
                         keys.remove(position);
                         notifyDataSetChanged();
                         return  true;
