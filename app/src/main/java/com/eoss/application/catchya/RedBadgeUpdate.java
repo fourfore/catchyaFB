@@ -106,6 +106,33 @@ public class RedBadgeUpdate extends Application{
         });
     }
 
+    //Increase count total Red badge
+    //count is number that want to add
+    //User is id of user that want to add
+    public void addNewTotalRedBadge(String User,int count,Context c){
+        final int mCount = count;
+        final String mUser = User;
+        mContext = c;
+
+        mRedBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(mUser);
+
+        mRedBadge.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
+                totalBadge = totalBadge+mCount;
+                mRedBadge.setValue(totalBadge+"");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+    }
+
     //Apply Red Badge to launcher icon
     public void addTotalRedBadge(String User,Context c){
 
