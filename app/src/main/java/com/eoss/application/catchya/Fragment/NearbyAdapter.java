@@ -1,11 +1,14 @@
 package com.eoss.application.catchya.Fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -91,8 +94,50 @@ public class NearbyAdapter extends RecyclerView.Adapter<NearbyAdapter.NearbyView
 
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(final DataSnapshot dataSnapshot) {
+                personViewHolder.photo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Dialog dialog = new Dialog(c, R.style.DialogTheme);
+                        dialog.setContentView(R.layout.dialog_view);
+                        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                        ImageView imageView = (ImageView) dialog.findViewById(R.id.imageView);
+                        TextView textView = (TextView) dialog.findViewById(R.id.name_age);
+                        Button like = (Button) dialog.findViewById(R.id.bLike);
+                        Button unLike = (Button) dialog.findViewById(R.id.bUnLike);
+                        Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).fit().centerCrop().into(imageView);
+                        textView.setText(dataSnapshot.child("Name").getValue(String.class)+", "+dataSnapshot.child("BD").child("age").getValue(String.class));
+                        like.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+//                                friend = FirebaseDatabase.getInstance().getReference().child("Friends");
+//                                friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).setValue("Send");
+//                                friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).setValue("Receive");
+//                                personViewHolder.requestToggle.setTextOn("Request Sent");
+//                                keys.put((new ArrayList<String>(keys.keySet())).get(position),"Send");
+                                personViewHolder.requestToggle.setChecked(true);
+                                dialog.dismiss();
+                            }
+                        });
+                        unLike.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+//                                friend = FirebaseDatabase.getInstance().getReference().child("Friends");
+//
+//                                friend.child(mAuth.getCurrentUser().getUid()).child((new ArrayList<String>(keys.keySet())).get(position)).removeValue();
+//                                friend.child((new ArrayList<String>(keys.keySet())).get(position)).child(mAuth.getCurrentUser().getUid()).removeValue();
+//                                personViewHolder.requestToggle.setTextOff("Send Request");
+//                                keys.put((new ArrayList<String>(keys.keySet())).get(position),"Null");
+                                personViewHolder.requestToggle.setChecked(false);
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog.show();
 
+
+
+                    }
+                });
                 personViewHolder.name.setText(dataSnapshot.child("Name").getValue(String.class));
                 Picasso.with(c).load(dataSnapshot.child("Pic").getValue(String.class)).fit().centerCrop().into(personViewHolder.photo);
                 personViewHolder.requestToggle.setText("Send Request");

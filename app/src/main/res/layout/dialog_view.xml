@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?android:attr/selectableItemBackground">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="match_parent"
+                    android:background="@color/cast_expanded_controller_background_color"
+                    android:layout_height="300dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Parwart, 24"
+                    android:paddingLeft="16dp"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    android:paddingTop="16dp"
+                    android:id="@+id/name_age"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Like"
+                    android:id="@+id/bLike"
+                    android:layout_weight="1"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Unlike"
+                    android:id="@+id/bUnLike"
+                    android:layout_weight="1"/>/>
+
+        </LinearLayout>
+
+    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+        <!--android:layout_width="55dp"-->
+        <!--android:layout_height="55dp"-->
+        <!--android:contentDescription="profile"-->
+        <!--android:id="@+id/fav_person_photo"-->
+        <!--android:layout_alignParentLeft="false"-->
+        <!--android:layout_centerVertical="true" />-->
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/textview_container"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_marginLeft="12dp"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--tools:layout_alignWithParentIfMissing="false"-->
+        <!--android:layout_alignWithParentIfMissing="false"-->
+        <!--android:layout_toRightOf="@+id/fav_person_photo">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/fav_list_name"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="friend name"-->
+            <!--android:textAppearance="@style/TextAppearance.AppCompat.Body2"-->
+            <!--android:textSize="16sp" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/fav_last_message"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="last message"-->
+            <!--android:textSize="14sp"-->
+            <!--android:textColor="@color/textmessage"/>-->
+    <!--</LinearLayout>-->
+    <!--<ImageButton-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/menu_popup"-->
+        <!--android:src="@drawable/ic_popup_menu_fav"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:background="@null"-->
+        <!--android:layout_centerVertical="true" />-->
+
+</RelativeLayout>
+
+
+
+    <!--<LinearLayout-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:orientation="horizontal"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:paddingTop="10dp"-->
+    <!--android:paddingBottom="10dp"-->
+    <!--&gt;-->
+
+    <!--<de.hdodenhof.circleimageview.CircleImageView-->
+    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--android:id="@+id/fav_person_photo"-->
+    <!--android:layout_width="65dp"-->
+    <!--android:layout_height="65dp"-->
+    <!--android:layout_marginRight="16dp"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_alignParentLeft="true"-->
+    <!--/>-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/fav_list_name"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_weight="1"/>-->
+
+    <!--<Button-->
+    <!--style="?android:attr/buttonStyleSmall"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Chat"-->
+    <!--android:id="@+id/fav_chat_button" />-->
+
+
+    <!--</LinearLayout>-->
+
+
