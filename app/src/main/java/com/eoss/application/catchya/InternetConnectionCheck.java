@@ -24,11 +24,11 @@ public class InternetConnectionCheck extends Application{
         if (activeNetwork != null) { // connected to the internet
             if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                 // connected to wifi
-                Toast.makeText(c, activeNetwork.getTypeName(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(c, activeNetwork.getTypeName(), Toast.LENGTH_SHORT).show();
                 return true;
             } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
                 // connected to the mobile provider's data plan
-                Toast.makeText(c, activeNetwork.getTypeName(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(c, activeNetwork.getTypeName(), Toast.LENGTH_SHORT).show();
                 return true;
             }
         } else {
