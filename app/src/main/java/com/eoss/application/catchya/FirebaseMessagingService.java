@@ -25,7 +25,7 @@ import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService{
     private static final String TAG = "FCM Service";
-
+    private RedBadgeUpdate redBadgeUpdate = new RedBadgeUpdate();;
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // TODO: Handle FCM messages here.
@@ -36,24 +36,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         Log.d(TAG, "Notification Message Body: " + remoteMessage.getData().toString());
         sendNotification(remoteMessage);
 
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(remoteMessage.getData().get("fUid"));
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
-                    totalBadge++;
-                    databaseReference.setValue(totalBadge + "");
 
-                    ShortcutBadger.applyCount(FirebaseMessagingService.this, totalBadge);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        redBadgeUpdate.addTotalRedBadge(remoteMessage.getData().get("fUid").toString(),this);
 
     }
 
