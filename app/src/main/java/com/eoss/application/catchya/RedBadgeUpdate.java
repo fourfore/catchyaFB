@@ -16,7 +16,7 @@ import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class RedBadgeUpdate extends Application{
 
-    DatabaseReference mDatabase;
+    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     DatabaseReference mAdapter;
     DatabaseReference mRedBadge;
     Context mContext;

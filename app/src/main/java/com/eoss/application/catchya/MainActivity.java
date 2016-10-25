@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
                     Intent myIntent = new Intent(MainActivity.this, AppActivity.class);
                     myIntent.addFlags(myIntent.FLAG_ACTIVITY_CLEAR_TASK);
                     MainActivity.this.startActivity(myIntent);
+                    Log.d("on-state","main Act");
                     finish();
 
                 } else {

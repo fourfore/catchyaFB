@@ -24,6 +24,7 @@ import com.android.volley.toolbox.Volley;
 import com.eoss.application.catchya.FirebaseMessagingService;
 import com.eoss.application.catchya.Fragment.ChatAdapter;
 import com.eoss.application.catchya.R;
+import com.eoss.application.catchya.RedBadgeUpdate;
 import com.eoss.application.catchya.SendNotify;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -64,10 +65,12 @@ public class ChatActivity extends AppCompatActivity {
     private ValueEventListener valueEventListener;
     private ChildEventListener childEventListener;
     private DatabaseReference checkFriendStatus;
+    private RedBadgeUpdate redBadgeUpdate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        redBadgeUpdate = new RedBadgeUpdate();
         setContentView(R.layout.activity_chat);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -104,40 +107,9 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
-        mClearRedbadge = FirebaseDatabase.getInstance().getReference().child("MessageAdapter").child(uid).child(idFriend).child("Unread");
-        mClearRedbadge.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    final int unRead = Integer.parseInt(dataSnapshot.getValue().toString());
-                    final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(uid);
-                    redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getValue() != null) {
-                                int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
-                                totalBadge = totalBadge - unRead;
-                                redBadge.setValue(totalBadge + "");
-                                Log.d("red-Total", totalBadge + "");
 
-                                ShortcutBadger.applyCount(ChatActivity.this, totalBadge);
-                            }
-                            mAdapterUser.setValue("0");
-                        }
+        redBadgeUpdate.clearUnread(uid,idFriend,getApplicationContext());
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
         Log.d("ChatAct",idFriend);
         mMessageAdapterUid = mDatabase.child("MessageAdapter").child(uid);
         mMessageAdapterUid.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -185,21 +157,9 @@ public class ChatActivity extends AppCompatActivity {
                     newMessage.put("Text",Text);
                     mChatRoomSave.push().setValue(newMessage);
 
-                    final DatabaseReference mAdapter = mDatabase.child("MessageAdapter").child(idFriend).child(uid).child("Unread");
-                    mAdapter.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            int unReadMessage = Integer.parseInt(dataSnapshot.getValue().toString());
-                            unReadMessage++;
-                            mAdapter.setValue(unReadMessage);
+                    redBadgeUpdate.addUnread(idFriend,uid);
+                    redBadgeUpdate.addNewTotalRedBadge(idFriend,1,getApplicationContext());
 
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
                     textChat.setText("");
                     mTokenRef = mDatabase.child("Token").child(idFriend.toString());
                     mTokenRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -264,28 +224,8 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                final int unRead = Integer.parseInt(dataSnapshot.getValue().toString());
-                final DatabaseReference redBadge = FirebaseDatabase.getInstance().getReference().child("RedBadge").child(uid);
-                redBadge.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        int totalBadge = Integer.parseInt(dataSnapshot.getValue().toString());
 
-                        totalBadge = totalBadge - unRead ;
-                        redBadge.setValue(totalBadge+"");
-
-
-                        ShortcutBadger.applyCount(ChatActivity.this, totalBadge);
-
-                        mAdapterUser.setValue("0");
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-
-                });
+                redBadgeUpdate.clearUnread(uid,idFriend,getApplicationContext());
 
             }
 

@@ -10,6 +10,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.eoss.application.catchya.Activity.ChatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,9 +24,10 @@ import me.leolin.shortcutbadger.ShortcutBadger;
  * Created by noom on 26/9/2559.
  */
 
-public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService{
+public class   FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService{
     private static final String TAG = "FCM Service";
-    private RedBadgeUpdate redBadgeUpdate = new RedBadgeUpdate();;
+    private RedBadgeUpdate redBadgeUpdate = new RedBadgeUpdate();
+    FirebaseAuth mAuth;
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // TODO: Handle FCM messages here.
@@ -36,8 +38,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         Log.d(TAG, "Notification Message Body: " + remoteMessage.getData().toString());
         sendNotification(remoteMessage);
 
-
-        redBadgeUpdate.addTotalRedBadge(remoteMessage.getData().get("fUid").toString(),this);
+        mAuth = FirebaseAuth.getInstance();
+        redBadgeUpdate.addTotalRedBadge(mAuth.getCurrentUser().getUid(),this);
 
     }
 

@@ -267,7 +267,7 @@ public class AppActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-
+        Log.d("on-state","onStart");
     }
 
     @Override
@@ -276,6 +276,7 @@ public class AppActivity extends AppCompatActivity {
 
         if (mAuthListener == null) {
             mAuth.addAuthStateListener(mAuthListener);
+            Log.d("on-state","onResume");
         }
 
     }
@@ -286,6 +287,8 @@ public class AppActivity extends AppCompatActivity {
 
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
+            Log.d("on-state","onPause");
+            finish();
         }
     }
 
@@ -294,6 +297,8 @@ public class AppActivity extends AppCompatActivity {
 
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
+            Log.d("on-state","onStop");
+            finish();
         }
 
 
